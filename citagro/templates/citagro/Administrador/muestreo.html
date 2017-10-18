@@ -1,0 +1,626 @@
+{% extends "citagro/Administrador/Administrador.html" %}
+
+
+{% block breadcrumbs %}
+						 
+	<div class="row">
+		<ul class="row breadcrumb">
+			<li><a href="{% url 'citagro:index' %}">Inicio</a></li>
+			{% if administrador %}
+			<li><a href="{% url 'citagro:explotacion' muestreo.idExplotacion.id %}">{{muestreo.idExplotacion.Razon_Social}}</a></li>
+			{% else %}
+			<li><a href="{% url 'citagro:explotacionTecnico' muestreo.idExplotacion.id %}">{{muestreo.idExplotacion.Razon_Social}}</a></li>
+			{% endif %}
+			<li class="active"><strong>Seguimiento y Muestreo</strong></li>
+		</ul>
+	</div>
+
+{% endblock %}
+
+{% block content %}
+<div class="col-lg-12">
+    <h1>Muestreo {{muestreo.fecha_muestreo}}</h1>
+</div>
+ <div class="row" ng-controller="creaMuestra" ng-init="iniciaMuestra('{{muestreo.id}}')">
+    <div class="col-lg-12" >
+		</br>
+        <div class="panel panel-default" ng-hide="modifica">
+            <div class="panel-heading">
+                <strong>Muestreo - {{muestreo.fecha_muestreo}}</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+				
+					<div class="col-lg-3">
+						<div><label>Explotación:</label>
+							{{muestreo.idExplotacion.Razon_Social}}
+						</div>
+					</div>
+					<div class="col-lg-3">
+						<div><label>UHC:</label>
+							{{muestreo.idUHC}}
+						</div>
+					</div>
+		
+					
+					<div class="col-lg-6">
+						<div><label>Técnico:</label>
+							{{muestreo.tecnico.Nombre}} {{muestreo.tecnico.Apellido1}} {{muestreo.tecnico.Apellido2}} ({{muestreo.horas}} horas dedicadas)
+						</div>
+					</div>	
+				</div>	
+				</div>	
+				</div>	
+				</div>	
+					<div class="row">
+					{% if fenologia %}
+					<div class="col-lg-6">
+						</br>
+						<div class="panel panel-green">
+							<div class="panel-heading">
+								<strong>Fenología</strong>
+							</div>
+							<div class="panel-body" style="max-height: 235px ;overflow-y: scroll;">
+								<div class="row">
+									<div class="table-responsive">
+						
+									<table class="table table-striped table-bordered table-hover">
+									   {% for elemento in fenologia %}
+										<tbody>
+											<tr><td>A</td><td>Germinación | % plantas</td><td>{{elemento.muestra_a}}</td></tr>
+											<tr><td>B</td><td>Desarrollo de hojas (tallo/s principal/es)   | % plantas</td><td>{{elemento.muestra_b}}</td></tr>
+											<tr><td>C</td><td>Formación brotes laterales    | % plantas </td><td>{{elemento.muestra_c}}</td></tr>
+											<tr><td>D</td><td>Órgano floral   | % plantas</td><td>{{elemento.muestra_d}}</td></tr>
+											<tr><td>E</td><td>Floración    | % plantas</td><td>{{elemento.muestra_e}}</td></tr>
+											<tr><td>F</td><td>Formación del fruto   | % plantas</td><td>{{elemento.muestra_f}}</td></tr>
+											<tr><td>G</td><td>Maduración del fruto/semilla    | % plantas</td><td>{{elemento.muestra_g}}</td></tr>
+											<tr><td>H</td><td>Cosecha   | % plantas</td><td>{{elemento.muestra_h}}</td></tr>
+											<tr><td>I</td><td>Senescencia  | % plantas</td><td>{{elemento.muestra_i}}</td></tr>
+
+											
+										</tbody>
+										{% endfor %}
+									</table>
+			
+								</div>
+							</div>
+						</div>
+					</div>	
+					</div>
+					
+					{% endif %}
+					{% if insectos %}
+						<div class="col-lg-6">
+						</br>
+						<div class="panel panel-info">
+							<div class="panel-heading">
+								<strong>Insectos auxiliares</strong>
+							</div>
+							<div class="panel-body" style="max-height: 235px ;overflow-y: scroll;">
+								<div class="row">
+									<div class="table-responsive">
+						
+									<table class="table table-striped table-bordered table-hover">
+									   
+										<tbody>
+											<tr><td>Nesidiocoris  |  % plantas con presencia</td><td>{{insectos.coccinelidos}}</td></tr>
+											<tr><td>Swirskii  |  % de plantas con presencia</td><td>{{insectos.neuropteros}}</td></tr>
+										</tbody>
+										
+									</table>
+			
+								</div>
+							</div>
+						</div>
+					</div>	
+					</div>
+					{% endif %}
+					</div>
+					<div class="row">
+						{% if enfermedades %}
+						<div class="col-lg-6">
+						<div class="panel panel-red">
+							<div class="panel-heading">
+								<strong>Enfermedades</strong>
+							</div>
+							<div class="panel-body" style="height: 170px ;">
+								<div class="row">
+									<div class="table-responsive">
+						
+									<table class="table table-striped table-bordered table-hover">
+									   
+										<tbody>
+											<tr><td>Oidio   |  % plantas afectadas</td><td>{{enfermedades.bacteriosis}}</td></tr>
+											<tr><td>Podredumbre gris (Botrytis cinerea)   | % plantas afectadas</td><td>{{enfermedades.antracnosis}}</td></tr>
+											<tr><td>Virus del mosaico amarillo (ZYMV)   | % plantas afectadas
+</td><td>{{enfermedades.antracnosis_2}}</td></tr>
+										</tbody>
+										
+									</table>
+			
+								</div>
+							</div>
+						</div>
+					</div>	
+					</div>
+					{% endif %}
+						
+					{% if trampas %}
+						<div class="col-lg-6">
+						<div class="panel panel-warning">
+							<div class="panel-heading">
+								<strong>Plagas</strong>
+							</div>
+							<div class="panel-body" style="max-height: 235px ;overflow-y: scroll;">
+								<div class="row">
+									<div class="table-responsive">
+						
+									<table class="table table-striped table-bordered table-hover">
+									   {% for elemento in trampas %}
+										<tbody>
+											<tr><td>Mosca blanca   | % plantas afectadas</td><td>{{elemento.carpocapsa_p1}}</td></tr>
+											<tr><td>Araña roja  |  Núm. de focos/1000m2</td><td>{{elemento.carpocapsa_p2}}</td></tr>
+											<tr><td>Pulgón | Núm. de focos/1000m2 </td><td>{{elemento.carpocapsa_p3}}</td></tr>
+											<tr><td>Trips |   % plantas afectadas</td><td>{{elemento.carpocapsa_p4}}</td></tr>
+											<tr><td>Orugas  |  % plantas afectadas</td><td>{{elemento.carpocapsa_p5}}</td></tr>
+											<tr><td>Nematodos  |  % plantas con daños</td><td>{{elemento.carpocapsa_p6}}</td></tr>
+										</tbody>
+										{% endfor %}
+									</table>
+			
+								</div>
+							</div>
+						</div>
+					</div>	
+					</div>
+					{% endif %}
+					
+					
+					</div>
+					
+					
+					
+					
+					{% if muestreo.observaciones != 'Sin observaciones' %}
+	
+					<div class="col-lg-12">
+						<div class="alert alert-warning col-lg-12" role="alert">
+					  <div class="panel-body">
+						<div><label>Observaciones a tener en cuenta:</label>
+							{{muestreo.observaciones}}
+						</div>
+					  </div>
+					</div>
+					</div>
+					
+					{% endif %}
+						</div>
+							</div>
+
+					</div>
+
+			
+			<div class="modal-footer">
+				<div class="col-lg-12">
+					{% if administrador %}
+					<button type="button" class="btn btn-info pull-right" ng-click="modifica = 'true'"><i class="fa fa-gear"></i> Modificar</button>
+					<br></br>
+					{% else %}
+					{% ifequal tecnico.id muestreo.tecnico.id %}
+					<button type="button" class="btn btn-info pull-right" ng-click="modifica = 'true'"><i class="fa fa-gear"></i> Modificar</button>
+					<br></br>
+					{% endifequal %}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel panel-default" ng-show="modifica">
+            <div class="panel-heading">
+                <strong>Modifica muestra</strong>
+            </div>
+
+			<div class="panel-body">
+				<div class="row">
+					<form name="MuestraForm" role="form" action="." method="POST">{% csrf_token %}
+						
+							<div class="col-lg-4">
+								<div class="form-group">
+									<label>Técnico:</label>
+									{% if administrador %}
+									<select class="form-control" ng-model="MuestraTecnico">
+										{% for tecnico in tecnicosExplotacion %}
+										<option value="{{tecnico.id}}">{{tecnico.Nombre}} {{tecnico.Apellido1}} {{tecnico.Apellido2}}</option>
+										{% endfor %}
+									</select>
+									{% else %}
+										<p><strong>{{tecnico.Nombre}} {{tecnico.Apellido1}} {{tecnico.Apellido2}}</strong></p>
+									{% endif %}
+								</div>
+							</div>
+							<div class="col-lg-4">
+								<div class="form-group">
+									<label>Horas dedicadas por técnico:</label>
+
+									<input type="text" class="form-control" ng-model="horasMu"/>
+								</div>
+							</div>
+							<div class="col-lg-12">
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+								<label>Fecha de la muestra*</label>
+									<input type="date" id="fecha_muestra" class="form-control" ng-model="fecha_muestra" />
+								</div>
+							</div>
+							<div class="col-lg-4">
+								<div class="form-group">
+									<label>UHC*</label>
+									<select class="form-control" ng-model="MuestraUHC">
+										{% for uhcr in uhcs %}
+										<option  value="{{uhcr.id}}">{{uhcr.nombre}}</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+							
+							<div class="col-lg-12">
+							<div class="row">
+									<div class="col-lg-4">
+										<div class="list-group">
+										 <a id="fenol" href="" class="list-group-item active" ng-click="fenologia()">
+											Fenología
+										  </a>
+										  <a id="brotes" href="" class="list-group-item" ng-click="brotes()">Muestreo Brotes/Frutos</a>
+										  <a id="tramp" href="" class="list-group-item" ng-click="trampas()">Trampas</a>
+										  <a id="zeuz" href="" class="list-group-item" ng-click="zeuzera()">Zeuzera</a>
+										  <a id="insect" href="" class="list-group-item" ng-click="insectos()">Insectos auxiliares</a>
+										  <a id="enferm" href="" class="list-group-item" ng-click="enfermedades()">Enfermedades</a>
+										</div>
+									</div>
+									<div class="col-lg-8">
+										<div class="panel panel-default">
+											  <div class="panel-heading">
+												<h3 class="panel-title">OPCIONES</h3>
+											  </div>
+											  <div class="panel-body" style="max-height: 250px ;overflow-y: scroll;">
+													<div class="row">
+														<div class="table-responsive">
+
+															<table id="tablaMuestras" class="table table-striped table-bordered table-hover">
+																
+																<thead>
+																	<tr>
+																		<th>Fenología</th>
+																		<th width="90"></th>
+																	</tr>
+																</thead>
+																<tbody ng-show="muestraFenologia">
+																	
+																	<tr ng-repeat ="elemento in arrayFenologia">
+																		<td>[[elemento.letra]] [[elemento.texto]]</td>
+																		<td>
+																			<select id="[[elemento.letra]]" class="form-control">
+																				<option ng-repeat ="valor in valores" value="valor">[[valor]]</option>
+																			</select>
+																		</td>
+																	</tr>
+																</tbody>
+																<tbody ng-show="muestraInsectos">
+																	
+																	<tr ng-repeat ="insecto in arrayInsectos">
+																		<td>[[insecto.texto]]</td>
+																		<td>
+																			<input id ="[[insecto.letra]]" ng-model="insecto.valor" type="text" class="form-control"/>
+																		</td>
+																	</tr>
+																</tbody>
+																<tbody ng-show="muestraTrampas">
+																	
+																	<tr ng-repeat ="trampa in arrayTrampas">
+																		<td>[[trampa.texto]]</td>
+																		<td>
+																			<input id="[[trampa.letra]]" ng-model="trampa.valor" type="text" class="form-control"/>
+																		</td>
+																	</tr>
+																</tbody>
+																<tbody ng-show="muestraBrotes">
+																										
+																	<tr ng-repeat ="brote in arrayBrotes">
+																		<td>[[brote.texto]]</td>
+																		<td>
+																			<input id="[[brote.letra]]" ng-model="brote.valor" type="text" class="form-control"/>
+																		</td>
+																	</tr>
+																</tbody>
+																<tbody ng-show="muestraZeuzera">
+																	
+																	<tr ng-repeat ="zeuzera in arrayZeuzera">
+																		<td>[[zeuzera.texto]]</td>
+																		<td>
+																			<input id="[[zeuzera.letra]]" ng-model="zeuzera.valor" type="text" class="form-control"/>
+																		</td>
+																	</tr>
+																</tbody>
+																<tbody ng-show="muestraEnfermedades">
+																	
+																	<tr ng-repeat ="enfermedad in arrayEnfermedades">
+																		<td>[[enfermedad.texto]]</td>
+																		<td>
+																			<input id="[[enfermedad.letra]]" ng-model="enfermedad.valor" type="text" class="form-control"/>
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</div>
+											  </div>
+									
+										</div>
+									</div>
+							</div>
+							
+							</div>
+							<div class="col-lg-12">
+								<div class="form-group">
+									<label>Observaciones:</label>
+									<textarea class="form-control" rows="3" ng-model="observaciones"></textarea>
+								</div>
+							</div>
+						
+					</form>
+				</div>	
+			</div>
+			
+			<div class="modal-footer">
+				<div class="col-lg-12">
+					<button type="button" class="btn btn-danger" ng-click="cancelar()"><i class="fa fa-times-circle"></i> Cancelar</button>
+					{% if administrador %}
+					<button type="button" class="btn btn-success" ng-click="modificaMuestra('{{muestreo.idExplotacion.id}}',MuestraTecnico,'{{muestreo.id}}')"><i class="fa fa-save"></i> Guardar</button>
+					{% else %}
+					<button type="button" class="btn btn-success" ng-click="modificaMuestra('{{muestreo.idExplotacion.id}}','{{tecnico.id}}','{{muestreo.id}}')"><i class="fa fa-save"></i> Guardar</button>
+					{% endif %}
+					<br></br>
+				</div>
+			</div>
+		</div>
+		
+		
+		
+		
+
+</div>
+<div class="panel panel-default" ng-controller="ParcelasController as parcont" ng-init="initialize({{muestreo.idExplotacion.id}})">
+            <div class="panel-heading">
+                <strong>Listado de Parcelas</strong>
+			</div>
+			<div class="panel-body" style="max-height: 308px ;overflow-y: scroll;">
+				<div class="table-responsive">
+						
+					<table class="table table-striped table-bordered table-hover">
+							
+						<thead>
+							<tr>
+								<th>Parcela</th>
+                                <th>Código</th>
+                                <th>Superficie</th>
+								<th>Descripción</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% if uhcParcelas %}
+									{% for parcela in uhcParcelas %}
+										<tr>
+											<td><a href="#" data-toggle="modal" data-target="#mi{{parcela.id}}" >{{parcela.nombre}}</a>
+											<div class="modal fade" id="mi{{parcela.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+											  <div class="modal-dialog ">
+												<div class="modal-content">
+												  <div class="modal-header">
+													<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+													<h4 class="modal-title" id="myModalLabel">{{parcela.nombre}}</h4>
+												  </div>
+												  <div class="modal-body">
+													<div class="panel-body">
+														<div class="row">
+															
+															<div class="col-lg-3">
+																<div class="form-group">
+																	<label>Explotación:</label>
+																	<div>{{parcela.idExplotacion.Razon_Social}}</div>
+																</div>
+															</div>
+															<div class="col-lg-3">
+																<div class="form-group">
+																	<label>UHC:</label>
+																	<div>{{parcela.idUHC}}</div>
+																</div>
+															</div>
+															
+															<div class="col-lg-3">
+																<label>SR:</label> 
+																<div>{{parcela.sr}}</div>
+																<!--{{parcela.sr}} -->
+															</div>
+															
+															
+															<div class="col-lg-12">
+																</br>
+															</div>
+															
+															<div class="col-lg-4">
+																<label>Provincia:</label>
+																<div>{{parcela.provincia.Provincia}} - {{parcela.provincia.CodProvincia}}</div>
+															</div>
+															<div class="col-lg-8">
+																<label>Municipio:</label>
+																<div>{{parcela.municipio.Municipio}} - {{parcela.municipio.CodMunicipio}}</div>
+															</div>
+															
+															<div class="col-lg-12">
+																</br>
+															</div>
+										
+															
+																
+															<div class="col-lg-2">
+																<label>Polígono:</label>
+																<div>{{parcela.poligono}}</div>
+															</div>
+															<div class="col-lg-2">
+																<label>Parcela:</label>
+																<div>{{parcela.parcela}}</div>
+															</div>
+															<div class="col-lg-2">
+																<label>Recinto:</label>
+																<div>{{parcela.recinto}}</div>
+															</div>
+															<div class="col-lg-6">
+																<label>Superficie(ha):</label>
+																<div>{{parcela.superficie_hectareas}} ha</div>
+															</div>
+																
+															
+															<div class="col-lg-12">
+																</br>
+															</div>
+															
+															<div class="col-lg-12">
+																<label>Descripción: </label>
+																<div>{{parcela.descripcion}}</div>
+															</div>
+															
+															
+													</div>
+												  </div>
+												  <div class="modal-footer">
+													<button type="button" class="btn btn-info" data-toggle="modal" data-target="#editaParcela{{parcela.id}}" ng-click="editar('{{parcela.id}}')">Editar</button>
+													
+
+													<div class="pull-left">
+														<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Eliminar{{parcela.id}}">Eliminar</button>
+														<div class="modal fade" id="Eliminar{{parcela.id}}" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+														  <div class="modal-dialog modal-sm">
+															<div class="modal-content">
+																
+																<div class="modal-body">
+																	<h4 class="col-lg-12">
+																		¡ATENCIÓN!
+																	</h4>
+																	<div>
+																		¿Deseas eliminar esta parcela?
+																	</div>
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-danger" ng-click="cerrar('{{parcela.id}}')">No</button>
+																	<button type="button" class="btn btn-success" ng-click="eliminar('{{parcela.id}}','parcela')">Si</button>
+																</div>
+															  
+															</div>
+														  </div>
+														</div>
+													</div>
+													<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+												  </div>
+												</div>
+											  </div>
+											</div>
+											<div class="modal fade" id="editaParcela{{parcela.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+											  <div class="modal-dialog">
+												<div class="modal-content">
+												  <div class="modal-header">
+													<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+													<h4 class="modal-title" id="myModalLabel">Editar {{parcela.nombre}}</h4>
+												  </div>
+												  <div class="modal-body">
+													<div class="panel-body">
+														<div class="row">
+															<form name="ParcelaForm" role="form" action="." method="POST">{% csrf_token %}
+															
+																<div class="col-lg-3">
+																	<div class="form-group">
+																		<label>UHC</label>
+																			<select class="form-control" ng-model="ParcelaUHC2">
+																			{% if uhcs %}
+																				{% for uhcr in uhcs %}
+																					<option  value="{{uhcr.id}}">{{uhcr.nombre}}</option>
+																				{% endfor %}
+																			{% endif %}
+																			</select>
+																	</div>
+																</div>
+															
+																<div class="col-lg-9">
+																	<div class="form-group">
+																		<label>Descriptor de parcela</label>
+																		<input class="form-control" placeholder="Ej. Parcela1" ng-model="nombreParcela2">
+																	</div>
+																</div>
+													
+																<div class="col-lg-2">
+																	<div class="form-group">
+																		<label>Polígono</label>
+																		<input class="form-control" placeholder="Ej. 001" ng-model="poligono2" required>
+																	</div>
+																</div>
+																<div class="col-lg-3">
+																	<div class="form-group">
+																		<label>Parcela</label>
+																		<input class="form-control" placeholder="Ej. 00003" ng-model="parcela2" required>
+																	</div>
+																</div>
+																<div class="col-lg-3">
+																	<div class="form-group">
+																		<label>Recinto</label>
+																		<input class="form-control" placeholder="Ej. 00002" ng-model="recinto2" required>
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Superficie (Hectáreas)</label>
+																		<input class="form-control" placeholder="Ej. 2.5434112" ng-model="superficie2">
+																	</div>
+																</div>
+																<div class="col-lg-6">
+																	<div class="form-group">
+																		<label>Secano <input type="radio" ng-model="sr2" value="SECANO"></label>
+																		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																		<label>Regadio <input type="radio" ng-model="sr2" value="REGADIO"></label>
+																	</div>
+																</div>
+																<div class="col-lg-6">
+																	<div class="form-group">
+																		<label>Descripción</label>
+																		<textarea class="form-control" rows="3" ng-model="descripcion2"></textarea>
+																	</div>
+																</div>
+																
+															
+															</form>
+														</div>	
+													</div>
+												  </div>
+												  <div class="modal-footer">
+													<button type="button" class="btn btn-default" data-dismiss="modal"  >Cerrar</button>
+													<button type="button" class="btn btn-primary" ng-click="guardarParcela('{{parcela.id}}','{{parcela.idExplotacion.id}}','{{parcela.provincia.id}}','{{parcela.municipio.id}}')">Guardar</button>
+												  </div>
+												</div>
+											  </div>
+											</div>
+											</td>
+											<td>{{parcela.provincia.CodProvincia}}-{{parcela.municipio.CodMunicipio}}-{{parcela.poligono}}-{{parcela.parcela}}-{{parcela.recinto}}</td>
+											<td>{{parcela.superficie_hectareas}}</td>
+											<td>{{parcela.descripcion}}</td>
+										</tr>
+									{% endfor %}
+							{% endif %}
+							
+						</tbody>
+					</table>
+				</div>
+			</div>
+	</div>
+</div>	
+
+{% endblock %}
+
+

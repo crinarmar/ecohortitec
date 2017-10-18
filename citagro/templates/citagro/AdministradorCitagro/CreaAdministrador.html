@@ -1,0 +1,161 @@
+{% extends "citagro/AdministradorCitagro/AdministradorCitagro.html" %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-8">
+	<div class="row" ng-controller="MunicipiosController" ng-init="iniciaMunicipios()">
+    <div class="col-lg-12">
+		</br>
+        <div class="panel panel-default" ng-controller="TecnicoModifica" ng-init="inicia('{{tecnico.id}}')">
+            <div class="panel-heading">
+                <strong>Nuevo administrador</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <form role="form" name="AdminForm" action="." method="POST">{% csrf_token %}
+			            <div class="col-lg-4">
+							<div class="form-group">
+								<label>Nombre*</label>
+								<input class="form-control" type="text" name="Nombre" ng-model="Nombre" required ng-minlength=3>
+								<div class="error-container" ng-show="AdminForm.Nombre.$dirty && AdminForm.Nombre.$invalid">
+									<small class="error text-danger" ng-show="AdminForm.Nombre.$error.required">El nombre es requerido</small>
+									<small class="error text-danger" ng-show="AdminForm.Nombre.$error.minlength">El nombre debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+						
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>Apellido1*</label>
+								<input class="form-control" type="text" name="Apellido1" ng-model="Apellido1"required ng-minlength=3>
+								<div class="error-container" ng-show="AdminForm.Apellido1.$dirty && AdminForm.Apellido1.$invalid">
+									<small class="error text-danger" ng-show="AdminForm.Apellido1.$error.required">El apellido es requerido</small>
+									<small class="error text-danger" ng-show="AdminForm.Apellido1.$error.minlength">El apellido debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>Apellido2*</label>
+								<input class="form-control" type="text" name="Apellido2" ng-model="Apellido2"required ng-minlength=3>
+								<div class="error-container" ng-show="TecnicoForm.Apellido2.$dirty && TecnicoForm.Apellido2.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Apellido2.$error.required">El apellido es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Apellido2.$error.minlength">El apellido debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>NIF*</label>
+								<input class="form-control" ng-class="[has-error]" type="text" name="NIF" ng-model="NIF" required ng-minlength=9 ng-maxlength=9 nifcif>
+								<div class="error-container" ng-show="AdminForm.NIF.$dirty && AdminForm.NIF.$invalid">
+									<small class="error text-danger" ng-show="AdminForm.NIF.$error.required">El nif es requerido</small>
+									<small class="error text-danger" ng-show="AdminForm.NIF.$error.nifcif">El nif no es correcto</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-9">
+							<div class="form-group">
+								<label>Domicilio*</label>
+								<input class="form-control" type="text" name="Domicilio" ng-model="Domicilio" required ng-minlength=3>
+								<div class="error-container" ng-show="AdminForm.Domicilio.$dirty && AdminForm.Domicilio.$invalid">
+									<small class="error text-danger" ng-show="AdminForm.Domicilio.$error.required">El domicilio es requerido</small>
+									<small class="error text-danger" ng-show="AdminForm.Domicilio.$error.minlength">El domicilio debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>CP*</label>
+								<input class="form-control" type="text" name="CP" ng-model="CP" required ng-minlength=5 ng-maxlength=5>
+								<div class="error-container" ng-show="AdminForm.CP.$dirty && AdminForm.CP.$invalid">
+									<small class="error text-danger" ng-show="AdminForm.CP.$error.required">El CP es requerido</small>
+									<small class="error text-danger" ng-show="AdminForm.CP.$error.minlength">El CP debe ser de 5 caracteres</small>
+									<small class="error text-danger" ng-show="AdminForm.CP.$error.maxlength">El CP debe ser de 5 caracteres</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Provincia*</label>
+									<select class="form-control" name="provincia" ng-model="provinciaSeleccionada" required>
+										{% for provincia in provincias %}
+										<option value="{{provincia.id}}">{{provincia.CodProvincia}} - {{provincia}}</option>
+										{% endfor %}
+								</select>
+							</div>
+						</div>
+														
+						<div class="col-lg-7">
+							<div class="form-group">
+								<label>Municipio*</label>
+								<select class="form-control" name="municipio" ng-model="municipioSeleccionado" required>
+									<option ng-repeat="municipio in municipios  | filter: {idProvincia: provinciaSeleccionada}" value="[[municipio.id]]">[[municipio.CodMunicipio]] - [[municipio.Municipio]]</option>
+								</select>
+							</div>
+						</div>
+										
+										
+						<div class="col-lg-8">
+							<div class="form-group">
+								<label>email</label>
+								<input class="form-control" placeholder="Ej. administrador@empresa.com" type="email" name="email" ng-model="email">
+								<small class="error text-danger" ng-show="AdminForm.email.$error.email">El email no es correcto</small>
+							</div>
+						</div>
+						<div class="col-lg-12">
+							<div class="form-group">
+												
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group" >
+								<label>Teléfono móvil*</label>
+								<input class="form-control" type="text" name="Telefono1" ng-model="Telefono1" required pattern="^[9|8|7|6]\d{8}$">
+								<div class="error-container" ng-show="AdminForm.Telefono1.$dirty && AdminForm.Telefono1.$invalid">
+									<small class="error text-danger" ng-show="AdminForm.Telefono1.$error.required">El teléfono es requerido</small>
+									<small class="error text-danger" ng-show="AdminForm.Telefono1.$error.pattern">El teléfono no es correcto</small>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Teléfono fijo</label>
+								<input class="form-control" type="text" name="Telefono2" ng-model="Telefono2" pattern="^[9|8|7|6]\d{8}$">
+								<small class="error text-danger" ng-show="AdminForm.Telefono2.$error.pattern">El teléfono no es correcto</small>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Fax</label>
+								<input class="form-control" type="text" name="Fax" ng-model="Fax" pattern="^[9|8|7|6]\d{8}$">
+								<small class="error text-danger" ng-show="AdminForm.Fax.$error.pattern">El Fax no es correcto</small>
+							</div>
+						</div>
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>Número en el ROPO</label>
+								<input class="form-control" type="text" name="ropo" ng-model="ropo">
+							</div>
+						</div>
+						
+						<div class="col-lg-12">
+							<div class=" pull-right">
+								<button type="submit" class="btn btn-primary">Guardar</button>
+							</div>
+						</div>
+		            </form>
+		        </div>
+		    </div>
+
+		</div>
+    </div>
+</div>	
+</div>
+
+
+
+{% endblock %}

@@ -1,0 +1,520 @@
+{% load admin_static %}{% load firstof from future %}<!DOCTYPE html>
+
+
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<title>{% block title %}{% endblock %}</title>
+
+<link rel="stylesheet" href="{% static 'css/bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/aplicacion.css' %}">
+<link rel="stylesheet" href="{% static 'css/bower_components/metisMenu/dist/metisMenu.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/css/sb-admin-2.css' %}">
+<link rel="stylesheet" href="{% static 'css/bower_components/font-awesome/css/font-awesome.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/bower_components/morrisjs/morris.css' %}">
+<link rel="stylesheet" href="{% static 'css/bower_components/datatables-responsive/css/dataTables.responsive.css' %}">
+<link rel="stylesheet" href="{% static 'css/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css' %}">
+
+{% block extrastyle %}{% endblock %}
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
+<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+<script type="text/javascript">window.__admin_utc_offset__ = "{% filter escapejs %}{% now "Z" %}{% endfilter %}";</script>
+<script src="{% static 'js/angular.min.js' %}"></script>
+<script src="{% static 'js/cookies.js' %}"></script>
+<script src="{% static 'js/ui-bootstrap-tpls-0.6.0.js' %}"></script>
+<script src="{% static 'css/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'css/bower_components/angular/angular-route.js' %}"></script>
+<script src="{% static 'css/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'css/bower_components/morrisjs/morris.min.js' %}"></script>
+<script src="{% static 'css/bower_components/metisMenu/dist/metisMenu.min.js' %}"></script>
+<script src="{% static 'js/sb-admin-2.js' %}"></script>
+<script src="{% static 'css/bower_components/DataTables/media/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'css/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js' %}"></script>
+
+
+{% block extrascripts %}
+<script src="{% static 'js/Modulos/configuracion.js' %}"></script>
+{% endblock %}
+{% block extrahead %}{% endblock %}
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+</head>
+{% load i18n %}
+
+<body ng-app="administrador">
+	<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+		<div class="navbar-header">
+			<a  href="{% url 'citagro:tecnico' %}"><img id = "imgLogo"  width="278" height="95" src ="{% static 'css/images/Ecohortitec_logo_proyecto_2.jpg' %}" ></a>
+			
+		</div>
+		<div class="navbar-header">
+			<a class="navbar-brand" ><strong>PROYECTO ECOHORTITEC </strong></a></br>
+			<a class="navbar-brand" ><strong>Sistema de evaluación ambiental en cultivos horticolas intensivos</strong></a>
+		</div>
+
+        <ul class="nav navbar-top-links navbar-right">
+            
+			<li class="dropdown">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-user fa-fw"></i> {% firstof user.get_full_name user.get_username %} <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-messages">
+					<li class="metadata"><strong>{% firstof user.get_full_name user.get_username %}</strong></li>
+					<li class="divider"></li>
+					<!--<li><a href="#"><i class="fa fa-user fa-fw"></i>Ver perfil</a></li>-->
+					{% if administrador %}
+					<li><a href="{% url 'citagro:cambiarUsuario2' %}"><i class="fa fa-gear fa-fw"></i>Cambiar usuario</a></li>
+					<li><a href="{% url 'citagro:password_change2' %}"><i class="fa fa-gear fa-fw"></i>{% trans 'Change password' %}</a></li>
+					{% else %}
+					<li><a href="{% url 'citagro:cambiarUsuario3' %}"><i class="fa fa-gear fa-fw"></i>Cambiar usuario</a></li>
+					<li><a href="{% url 'citagro:password_change3' %}"><i class="fa fa-gear fa-fw"></i>{% trans 'Change password' %}</a></li>
+					{% endif %}
+                    <li class="divider"></li>
+					<li><a href="{% url 'citagro:logout' %}"><i class="fa fa-sign-out fa-fw"></i>{% trans 'Log out' %}</a></li>
+                    </li>
+                </ul>
+				
+            </li>
+           
+          </ul>
+      </div>
+	  
+	  
+	 
+    </nav>
+	 <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        
+						<li>
+                            <a href="{% url 'citagro:tecnico' %}"><i class="fa fa-dashboard fa-fw"></i> Inicio</a>
+                        </li>
+						{% if administrador %}
+						<li>
+							<a href="{% url 'citagro:tecnicos' %}"><i class="fa fa-wrench fa-fw"></i> Técnicos</a>
+						</li>
+						{% endif %}
+						<li>
+							{% if administrador %}<a href=""><i class="fa fa-th-list fa-fw"></i> Explotaciones<span class="fa arrow"></span></a>
+							{% else %}<a href=""><i class="fa fa-th-list fa-fw"></i> Explotaciones asignadas<span class="fa arrow"></span></a>{% endif %}
+							{% if administrador %}
+							<ul class="nav nav-second-level">
+								<li><a href="{% url 'citagro:creaExplotacion' %}">Nueva Explotación</a>
+								</li>
+							</ul>
+							{% endif %}
+							{% if lista_explotaciones %}
+							<ul class="nav nav-second-level">
+								{% if administrador %}
+									{% for explotacion in lista_explotaciones %}
+									<li>
+										<a href="{% url 'citagro:tecnicoExplotacion' explotacion.id %}">{{explotacion.Razon_Social}}</a>
+									</li>
+									{% endfor %}
+								{% else %}
+									{% for explotacion in lista_explotaciones %}
+									<li>
+										<a href="{% url 'citagro:tecnicoExplotacion' explotacion.id %}">{{explotacion.Razon_Social}}</a>
+									</li>
+									{% endfor %}
+								{% endif %}
+                            </ul>
+							{% endif %}
+						</li>
+						<li>
+							<a href="{% url 'citagro:index' %}"><i class="fa fa-th-list fa-fw"></i> Configuración</a>
+						</li>
+							{% if administrador %}
+						<li>
+							<a href="{% url 'citagro:maquinasUsuario' %}"><i class="fa fa-gears fa-fw"></i> Maquinaria</a>
+						</li>
+							{% endif %}
+                        
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+	<div id="page-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+					{% block breadcrumbs %}
+						 
+						<div class="row">
+							<ul class="row breadcrumb">
+								<li class="active"><strong>Configuración</strong></li>
+							</ul>
+						</div>
+
+					{% endblock %}
+                    
+					
+					{% block pretitle %}{% endblock %}
+					{% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+					{% block content %}
+					
+					<div class="row" ng-controller="Dashboard as panel" ng-init="iniciaConfig()">
+					
+		
+				
+
+		<section>
+
+			</br>
+			<section ng-controller="PanelController as panel">
+			<ul class="nav nav-tabs" id="paneles">
+				<li role="presentation" ng-class="{ active:panel.isSelectedSec(4)}"><a href ng-click="panel.selectTabSec(4)"><i class="fa fa-gear"></i> Input</a></li>
+				<li role="presentation" ng-class="{ active:panel.isSelectedSec(3)}"><a href ng-click="panel.selectTabSec(3)"><i class="fa fa-gear"></i> UHC</a></li>
+			 
+			</ul>
+
+		<div class="panel" ng-show="panel.isSelectedSec(4)">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<strong>Inputs</strong>
+									<div class="pull-right" >
+										<a href="#" data-toggle="modal" data-target="#nuevocultivo"><i class="fa fa-plus fa-fw"></i><strong> Nuevo Input</strong></a>
+										<div class="modal fade" id="nuevocultivo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+								  <div class="modal-dialog">
+									<div class="modal-content">
+									  <div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+										<h4 class="modal-title" id="myModalLabel">Nuevo Input</h4>
+									  </div>
+									  <div class="modal-body">
+										<div class="panel-body">
+											<div class="row">
+												<form name="cultivoForm" role="form" action="." method="POST">{% csrf_token %}
+												
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>Tipo Operación</label>
+															<select id="tipoSeleccionado" class="form-control"ng-model="tipoSeleccionado" required>
+																<option ng-repeat="tipo in tipoOperaciones |orderBy: 'orden'" value="[[tipo.id]]">[[tipo.nombre]]</option>
+															</select>
+														</div>
+													</div>
+													<div class="col-lg-9">
+														<div class="form-group">
+															<label>Nombre Input</label>
+															<input  id="nombreInput" class="form-control"  ng-model="nombreInput">
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Cantidad</label>
+															<input id="cantidad" placeholder='Ej: 1000.00' id="cantidad" class="form-control" ng-model="cantidad" />
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Unidad</label>
+															<input id="unidad" id="unidad" class="form-control" ng-model="unidad" />
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Coeficiente de emisión</label>
+															<input id="coefEmision" placeholder='Ej: 1000.00000' id="coefEmision" class="form-control" ng-model="coefEmision" />
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Unidad Coef. Emisión</label>
+															<input id="unidadCoef" id="unidadCoef" class="form-control" ng-model="unidadCoef" />
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Coeficiente asignación</label>
+															<input id="coefAsignacion" placeholder='Ej: 1000.00' id="coefAsignacion" class="form-control" ng-model="coefAsignacion" />
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Coste Unitario</label>
+															<input id="costeUnitario" placeholder='Ej: 1000.00' id="costeUnitario" class="form-control" ng-model="costeUnitario" />
+														</div>
+													</div>
+													
+													
+												
+												</form>
+											</div>	
+										</div>
+									  </div>
+									  <div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+										<button type="button" class="btn btn-primary" ng-click="guardarInput()">Guardar</button>
+									  </div>
+									</div>
+								  </div>
+								  
+								    
+								  
+								</div>
+									</div>
+							
+								</div>
+                        <!-- /.panel-heading -->
+							<div class="panel-body" style="max-height: 700px ;overflow-y: scroll;">
+								<div class="table-responsive">
+									
+									<table class="table table-striped table-bordered table-hover">
+							
+							<thead>
+								<tr>
+									<th></th>
+									<th>Tipo operación</th>
+									<th>Nombre</th>
+                                    <th>Cantidad</th>
+									<th>Unidad</th>
+									<th>Coeficiente de Emisión</th>
+									<th>Unidad Coeficiente</th>
+								    <th>Coeficiente de Asignación</th>
+								    <th>Coste Unitario</th>
+								    
+								    
+									
+								</tr>
+							</thead>
+							<tbody>
+								{% for input in Inputoperaciones %}
+								<tr >
+									
+									<td ><a href="#" data-toggle="modal" ng-click ='cargarInput({{input.id}})' data-target="#nuevocultivo2"><i class="fa fa-edit text-info"></i></a>
+										<div class="modal fade" id="nuevocultivo2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+								  <div class="modal-dialog">
+									<div class="modal-content">
+									  <div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+										<h4 class="modal-title" id="myModalLabel2">Edit Input</h4>
+									  </div>
+									  <div class="modal-body">
+										<div class="panel-body">
+											<div class="row">
+												<form name="cultivoForm" role="form" action="." method="POST">{% csrf_token %}
+												
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>Tipo Operación</label>
+															<select id="tipoSeleccionadoEdit" class="form-control"ng-model="inputOperacionId.idTipoOperacion" required>
+																<option ng-repeat="tipo in tipoOperaciones |orderBy: 'orden'" value="[[tipo.id]]">[[tipo.nombre]]</option>
+															</select>
+														</div>
+													</div>
+													<div class="col-lg-9">
+														<div class="form-group">
+															<label>Nombre Input</label>
+															<input  id="nombreInputEdit" class="form-control"  ng-model="inputOperacionId.input">
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Cantidad</label>
+															<input id="cantidadEdit" placeholder='Ej: 1000.00'  class="form-control" ng-model="inputOperacionId.cantidad" />
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Unidad</label>
+															<input id="unidadEdit" class="form-control" ng-model="inputOperacionId.unidad" />
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Coeficiente de emisión</label>
+															<input id="coefEmisionEdit" placeholder='Ej: 1000.00000'  class="form-control" ng-model="inputOperacionId.coefEmision" />
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Unidad Coef. Emisión</label>
+															<input id="unidadCoefEdit" class="form-control" ng-model="inputOperacionId.unidadCoef" />
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Coeficiente asignación</label>
+															<input id="coefAsignacionEdit" placeholder='Ej: 1000.00' class="form-control" ng-model="inputOperacionId.coefAsignacion" />
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+														<label>Coste Unitario</label>
+															<input id="costeUnitarioEdit" placeholder='Ej: 1000.00'  class="form-control" ng-model="inputOperacionId.costeUnitario" />
+														</div>
+													</div>
+													
+													
+												
+												</form>
+											</div>	
+										</div>
+									  </div>
+									  <div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+										<button type="button" class="btn btn-primary" ng-click="editInput([[inputOperacionId.id]])">Modificar</button>
+									  </div>
+									</div>
+								  </div>
+								  
+								    
+								  
+								</div>
+										</td>
+									<td>{{input.idTipoOp.nombre}}</td>
+									<td>{{input.input}}</td>
+									<td>{{input.cantidad}}</td>
+									<td>{{input.unidad}}</td>
+									<td>{{input.coefEmision}}</td>
+									<td>{{input.unidadCoef}}</td>
+									<td>{{input.coefAsignacion}}</td>
+									<td>{{input.costeUnitario}}</td>
+									<td ><a href=""  ng-click = "borrarInput({{input.id}})" ><i class="fa fa-trash-o text-danger" ></i></a></td>
+
+									
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+								
+								
+						
+								<!-- /.table-responsive -->
+							</div>
+						
+                        <!-- /.panel-body -->
+                    </div>
+						</div>
+						</div>
+		<div class="panel" ng-show="panel.isSelectedSec(3)">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<strong>UHCs</strong>
+									<div class="pull-right" >
+										
+									</div>
+							
+								</div>
+                        <!-- /.panel-heading -->
+							<div class="panel-body" style="max-height: 308px ;overflow-y: scroll;">
+								<div class="table-responsive">
+									
+									<table class="table table-striped table-bordered table-hover">
+							
+										<thead>
+											<tr>
+												<th></th>
+												<th>Nombre</th>
+												<th>Explotación</th>
+												<th>Coste Asociado</th>
+												<th>Indicador Evaluación Ambiental</th>
+												<th>Superficie (ha)</th>
+												
+												
+											</tr>
+										</thead>
+										<tbody>
+									{% for uhc in uhcs %}
+											<tr >
+												<td ><a href="#" data-toggle="modal" ng-click ='cargarUHC({{uhc.id}})' data-target="#nuevouhc"><i class="fa fa-edit text-info"></i></a>
+										<div class="modal fade" id="nuevouhc" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+								  <div class="modal-dialog">
+									<div class="modal-content">
+									  <div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+										<h4 class="modal-title" id="myModalLabel">Edit UHC</h4>
+									  </div>
+									  <div class="modal-body">
+										<div class="panel-body">
+											<div class="row">
+												<form name="cultivoForm" role="form" action="." method="POST">{% csrf_token %}
+													<div class="col-lg-9">
+														<div class="form-group">
+															<label>Nombre uhc</label>
+															<input  id="nombreUHCEdit" class="form-control"  ng-model="nombreUHC">
+														</div>
+													</div>
+												</form>
+											</div>	
+										</div>
+									  </div>
+									  <div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+										<button type="button" class="btn btn-primary" ng-click="editUHC({{uhc.id}})">Modificar</button>
+									  </div>
+									</div>
+								  </div>
+								  
+								    
+								  
+								</div>
+										</td>
+												<td>{{uhc.nombre}}</td>
+												<td>{{uhc.idExplotacion.Razon_Social}}</td>
+												<td>{{uhc.costeAsociado}}</td>
+												<td>{{uhc.indicadorEvAmbiental}}</td>
+												<td>{{uhc.superficie_hectareas}}</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+								
+								<!-- /.table-responsive -->
+							</div>
+						
+                        <!-- /.panel-body -->
+                    </div>
+						</div>
+	
+				</section>
+			
+					</div>
+					{% block object-tools %}{% endblock %}
+					{{ content }}
+					{% endblock %}
+					{% block sidebar %}{% endblock %}
+					<br class="clear" />
+                </div>
+				
+            </div>
+
+    </div>
+	{% block footer %}<div id="footer" align="center"><a><img id = "imgLogo"  width="1276" height="53" src ="{% static 'css/images/footer.jpg' %}" ></a></div>{% endblock %}
+	
+	
+	
+<!-- END Container -->
+
+<script>
+    $(document).ready(function() {
+        $('#dataTables-example').DataTable({
+                responsive: true
+        });
+    });
+</script>
+<script type="text/javascript" src="{% static 'js/app.js' %}"></script>
+
+
+
+
+</body>
+
+
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,414 @@
+{% extends "citagro/Administrador/Administrador.html" %}
+
+{% block extrastyle %}
+
+<style type="text/css">
+	  .css-form input.ng-invalid.ng-touched {
+		background-color: #FA787E;
+	  }
+
+	  .css-form input.ng-valid.ng-touched {
+		background-color: #78FA89;
+	  }
+	  .css-form select.ng-invalid.ng-touched {
+		background-color: #FA787E;
+	  }
+
+	  .css-form select.ng-valid.ng-touched {
+		background-color: #78FA89;
+	  }
+</style>
+
+{% endblock %}
+
+{% block breadcrumbs %}
+						 
+	<div class="row">
+		<ul class="row breadcrumb">
+			<li><a href="{% url 'citagro:index' %}">Inicio</a></li>
+			<li><a href="{% url 'citagro:tecnicos' %}">Técnicos</a></li>
+			<li class="active"><strong>Nuevo Técnico</strong></li>
+		</ul>
+	</div>
+
+{% endblock %}
+
+{% block content %}
+{% if tecnico %}
+<div class="col-lg-12">
+   <h1>Modifica Técnico - Usuario: {{tecnico.Nombre}} {{tecnico.Apellido1}} {{tecnico.Apellido2}}</h1>
+ </div>
+ <div class="row" ng-controller="MunicipiosController" ng-init="iniciaMunicipios()">
+    <div class="col-lg-12">
+		</br>
+        <div class="panel panel-default" ng-controller="TecnicoModifica" ng-init="inicia('{{tecnico.id}}')">
+            <div class="panel-heading">
+                <strong>Modifica Técnico</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <form role="form" name="TecnicoForm" action="." method="POST">{% csrf_token %}
+			            <div class="col-lg-4">
+							<div class="form-group">
+								<label>Nombre*</label>
+								<input class="form-control" type="text" name="Nombre" ng-model="Nombre2" required ng-minlength=3>
+								<div class="error-container" ng-show="TecnicoForm.Nombre.$dirty && TecnicoForm.Nombre.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Nombre.$error.required">El nombre es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Nombre.$error.minlength">El nombre debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+						
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>Apellido1*</label>
+								<input class="form-control" type="text" name="Apellido1" ng-model="Apellido12"required ng-minlength=3>
+								<div class="error-container" ng-show="TecnicoForm.Apellido1.$dirty && TecnicoForm.Apellido1.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Apellido1.$error.required">El apellido es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Apellido1.$error.minlength">El apellido debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>Apellido2*</label>
+								<input class="form-control" type="text" name="Apellido2" ng-model="Apellido22"required ng-minlength=3>
+								<div class="error-container" ng-show="TecnicoForm.Apellido2.$dirty && TecnicoForm.Apellido2.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Apellido2.$error.required">El apellido es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Apellido2.$error.minlength">El apellido debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>NIF*</label>
+								<input class="form-control" ng-class="[has-error]" type="text" name="NIF" ng-model="NIF2" required ng-minlength=9 ng-maxlength=9 nifcif>
+								<div class="error-container" ng-show="TecnicoForm.NIF.$dirty && TecnicoForm.NIF.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.NIF.$error.required">El nif es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.NIF.$error.nifcif">El nif no es correcto</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-9">
+							<div class="form-group">
+								<label>Domicilio*</label>
+								<input class="form-control" type="text" name="Domicilio" ng-model="Domicilio2" required ng-minlength=3>
+								<div class="error-container" ng-show="TecnicoForm.Domicilio.$dirty && TecnicoForm.Domicilio.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Domicilio.$error.required">El domicilio es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Domicilio.$error.minlength">El domicilio debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>CP*</label>
+								<input class="form-control" type="text" name="CP" ng-model="CP2" required ng-minlength=5 ng-maxlength=5>
+								<div class="error-container" ng-show="TecnicoForm.CP.$dirty && TecnicoForm.CP.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.CP.$error.required">El CP es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.CP.$error.minlength">El CP debe ser de 5 caracteres</small>
+									<small class="error text-danger" ng-show="TecnicoForm.CP.$error.maxlength">El CP debe ser de 5 caracteres</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Provincia*</label>
+									<select class="form-control" name="provincia" ng-model="provinciaSeleccionada2" required>
+										{% for provincia in provincias %}
+										<option value="{{provincia.id}}">{{provincia.CodProvincia}} - {{provincia}}</option>
+										{% endfor %}
+								</select>
+							</div>
+						</div>
+														
+						<div class="col-lg-7">
+							<div class="form-group">
+								<label>Municipio*</label>
+								<select class="form-control" name="municipio" ng-model="municipioSeleccionado2" required>
+									<option value="">{{tecnico.Municipio.CodMunicipio}} - {{tecnico.Municipio}}</option>
+									<option ng-repeat="municipio in municipios  | filter: {idProvincia: provinciaSeleccionada2}" value="[[municipio.id]]">[[municipio.CodMunicipio]] - [[municipio.Municipio]]</option>
+								</select>
+							</div>
+						</div>
+										
+										
+						<div class="col-lg-8">
+							<div class="form-group">
+								<label>email</label>
+								<input class="form-control" placeholder="Ej. tecnico@empresa.com" type="email" name="email" ng-model="email2">
+								<small class="error text-danger" ng-show="TecnicoForm.email.$error.email">El email no es correcto</small>
+							</div>
+						</div>
+						<div class="col-lg-12">
+							<div class="form-group">
+												
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group" >
+								<label>Teléfono móvil*</label>
+								<input class="form-control" type="text" name="Telefono1" ng-model="Telefono12" required pattern="^[9|8|7|6]\d{8}$">
+								<div class="error-container" ng-show="TecnicoForm.Telefono1.$dirty && TecnicoForm.Telefono1.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Telefono1.$error.required">El teléfono es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Telefono1.$error.pattern">El teléfono no es correcto</small>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Teléfono fijo</label>
+								<input class="form-control" type="text" name="Telefono2" ng-model="Telefono22" pattern="^[9|8|7|6]\d{8}$">
+								<small class="error text-danger" ng-show="TecnicoForm.Telefono2.$error.pattern">El teléfono no es correcto</small>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Fax</label>
+								<input class="form-control" type="text" name="Fax" ng-model="Fax2" pattern="^[9|8|7|6]\d{8}$">
+								<small class="error text-danger" ng-show="TecnicoForm.Fax.$error.pattern">El Fax no es correcto</small>
+							</div>
+						</div>
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>Número en el ROPO</label>
+								<input class="form-control" type="text" name="ropo" ng-model="ropo2">
+							</div>
+						</div>
+						
+						
+		            </form>
+		        </div>
+		    </div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger pull-left" data-toggle="modal" data-target="#eliminarTecnico{{tecnico.id}}"><i class="fa fa-times"></i> Eliminar</button>
+				<div class="modal fade" id="eliminarTecnico{{tecnico.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-sm">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+								<h4 class="modal-title" id="myModalLabel">¿Desea eliminar este técnico?</h4>
+							</div>
+							
+							<div class="modal-body">
+								<div class="panel-body">
+									<div class="row">
+										<div class="col-lg-12">
+											<p class="text-center">Si se elimina, este técnico dejará de ser usuario</p>
+											<p class="text-center"><strong>{{tecnico.Nombre}} {{tecnico.Apellido1}} {{tecnico.Apellido2}}</strong></p>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="modal-footer">
+								<div class="col-lg-12">
+									<button type="button" class="btn btn-success pull-left" ng-click="eliminaTecnico('{{tecnico.id}}','{{tecnico.idAdmin.id}}')">Si</button>
+									<button type="button" class="btn btn-danger pull-right" ng-click="cerrar('#eliminarTecnico','{{tecnico.id}}')">No</button>
+									<br></br>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<button type="button" class="btn btn-info pull-right" ng-click="modificaTecnico('{{tecnico.id}}','{{tecnico.idAdmin.id}}')"><i class="fa fa-save"></i> Guardar</button>
+			</div>
+		</div>
+    </div>
+</div>	
+{% else %}
+ <div class="col-lg-12">
+   <h1>Nuevo técnico</h1>
+ </div>
+ <div class="row" ng-controller="MunicipiosController" ng-init="iniciaMunicipios()">
+    <div class="col-lg-12">
+		</br>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Nuevo técnico</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <form role="form" name="TecnicoForm" action="." method="POST">{% csrf_token %}
+			            <div class="col-lg-4">
+							<div class="form-group">
+								<label>Nombre*</label>
+								<input class="form-control" type="text" name="Nombre" ng-model="Nombre" required ng-minlength=3>
+								<div class="error-container" ng-show="TecnicoForm.Nombre.$dirty && TecnicoForm.Nombre.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Nombre.$error.required">El nombre es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Nombre.$error.minlength">El nombre debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+						
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>Apellido1*</label>
+								<input class="form-control" type="text" name="Apellido1" ng-model="Apellido1"required ng-minlength=3>
+								<div class="error-container" ng-show="TecnicoForm.Apellido1.$dirty && TecnicoForm.Apellido1.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Apellido1.$error.required">El apellido es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Apellido1.$error.minlength">El apellido debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>Apellido2*</label>
+								<input class="form-control" type="text" name="Apellido2" ng-model="Apellido2"required ng-minlength=3>
+								<div class="error-container" ng-show="TecnicoForm.Apellido2.$dirty && TecnicoForm.Apellido2.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Apellido2.$error.required">El apellido es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Apellido2.$error.minlength">El apellido debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>NIF*</label>
+								<input class="form-control" ng-class="[has-error]" type="text" name="NIF" ng-model="NIF" required ng-minlength=9 ng-maxlength=9 nifcif>
+								<div class="error-container" ng-show="TecnicoForm.NIF.$dirty && TecnicoForm.NIF.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.NIF.$error.required">El nif es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.NIF.$error.nifcif">El nif no es correcto</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-9">
+							<div class="form-group">
+								<label>Domicilio*</label>
+								<input class="form-control" type="text" name="Domicilio" ng-model="Domicilio" required ng-minlength=3>
+								<div class="error-container" ng-show="TecnicoForm.Domicilio.$dirty && TecnicoForm.Domicilio.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Domicilio.$error.required">El domicilio es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Domicilio.$error.minlength">El domicilio debe tener mínimo 3 caracteres</small>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>CP*</label>
+								<input class="form-control" type="text" name="CP" ng-model="CP" required ng-minlength=5 ng-maxlength=5>
+								<div class="error-container" ng-show="TecnicoForm.CP.$dirty && TecnicoForm.CP.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.CP.$error.required">El CP es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.CP.$error.minlength">El CP debe ser de 5 caracteres</small>
+									<small class="error text-danger" ng-show="TecnicoForm.CP.$error.maxlength">El CP debe ser de 5 caracteres</small>
+								</div>
+							</div>
+						</div>
+										
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Provincia*</label>
+									<select class="form-control" name="provincia" ng-model="provinciaSeleccionada" required>
+										{% for provincia in provincias %}
+										<option value="{{provincia.id}}">{{provincia.CodProvincia}} - {{provincia}}</option>
+										{% endfor %}
+								</select>
+							</div>
+						</div>
+														
+						<div class="col-lg-7">
+							<div class="form-group">
+								<label>Municipio*</label>
+								<select class="form-control" name="municipio" ng-model="municipioSeleccionado" required>
+									<option ng-repeat="municipio in municipios  | filter: {idProvincia: provinciaSeleccionada}" value="[[municipio.id]]">[[municipio.CodMunicipio]] - [[municipio.Municipio]]</option>
+								</select>
+							</div>
+						</div>
+										
+										
+						<div class="col-lg-8">
+							<div class="form-group">
+								<label>email</label>
+								<input class="form-control" placeholder="Ej. tecnico@empresa.com" type="email" name="email" ng-model="email">
+								<small class="error text-danger" ng-show="TecnicoForm.email.$error.email">El email no es correcto</small>
+							</div>
+						</div>
+						<div class="col-lg-12">
+							<div class="form-group">
+												
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group" >
+								<label>Teléfono móvil*</label>
+								<input class="form-control" type="text" name="Telefono1" ng-model="Telefono1" required pattern="^[9|8|7|6]\d{8}$">
+								<div class="error-container" ng-show="TecnicoForm.Telefono1.$dirty && TecnicoForm.Telefono1.$invalid">
+									<small class="error text-danger" ng-show="TecnicoForm.Telefono1.$error.required">El teléfono es requerido</small>
+									<small class="error text-danger" ng-show="TecnicoForm.Telefono1.$error.pattern">El teléfono no es correcto</small>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Teléfono fijo</label>
+								<input class="form-control" type="text" name="Telefono2" ng-model="Telefono2" pattern="^[9|8|7|6]\d{8}$">
+								<small class="error text-danger" ng-show="TecnicoForm.Telefono2.$error.pattern">El teléfono no es correcto</small>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Fax</label>
+								<input class="form-control" type="text" name="Fax" ng-model="Fax" pattern="^[9|8|7|6]\d{8}$">
+								<small class="error text-danger" ng-show="TecnicoForm.Fax.$error.pattern">El Fax no es correcto</small>
+							</div>
+						</div>
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>Número en el ROPO</label>
+								<input class="form-control" type="text" name="ropo" ng-model="ropo">
+							</div>
+						</div>
+						
+						<div class="col-lg-12">
+							<div class=" pull-right">
+								<button type="submit" class="btn btn-primary">Guardar</button>
+							</div>
+						</div>
+		            </form>
+		        </div>
+		    </div>
+		</div>
+    </div>
+</div>	
+{% endif %}	
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+

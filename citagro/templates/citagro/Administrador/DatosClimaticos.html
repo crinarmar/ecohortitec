@@ -1,0 +1,79 @@
+{% extends "citagro/Administrador/Explotacion.html" %}
+{% load i18n %}
+{% load admin_static %}
+{% block extrascripts %}
+<script src="{% static 'css/bower_components/morrisjs/morris.js' %}"></script>
+<script src="{% static 'js/raphael/raphael-min.js' %}"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.min.js"></script>
+<script src="{% static 'js/example.js' %}"></script>
+<script src="{% static 'js/datosClimaticos.js' %}"></script>
+
+{% endblock %}
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'css/bower_components/morrisjs/morris.css' %}">
+<link rel="stylesheet" href="{% static 'js/example.css' %}">
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.min.css">
+<link rel="stylesheet" href="{% static 'css/css/timeline.css' %}">
+{% endblock %}
+
+
+{% block page-header %}{{explotacion.Razon_Social}} - Datos Climáticos{% endblock %}
+
+{% block content %}
+	<ul class="nav nav-tabs">
+	  <li role="presentation"><a href="{% url 'citagro:explotacion' explotacion.id %}">Parcelas</a></li>
+	  <li role="presentation"><a href="{% url 'citagro:tecnicosExplotacion' explotacion.id %}">Técnicos Asignados</a></li>
+	  <li role="presentation"><a href="{% url 'citagro:maquinas' explotacion.id %}">Maquinaria</a></li>
+	  <li role="presentation"><a href="#">Aplicadores</a></li>
+	  <li role="presentation" class = "active"><a href="{% url 'citagro:datosClimaticos' explotacion.id %}">Datos Climáticos</a></li>
+	</ul>
+
+<br></br>
+
+
+{% block subcontent %}
+<div class="row">
+
+                <div class="col-lg-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-bar-chart-o fa-fw"></i> Temperatura
+                            
+                        </div>
+						<div class="panel-body">
+                            <div id="grafico-temperatura"></div>
+                        </div>
+                     
+                    </div>
+                <!-- /.col-lg-12 -->
+				</div>
+				<div class="col-lg-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-bar-chart-o fa-fw"></i> Humedad
+                            
+                        </div>
+						<div class="panel-body">
+                            <div id="grafico-humedad"></div>
+                        </div>
+                    </div>
+                <!-- /.col-lg-12 -->
+				</div>
+				<div class="col-lg-8">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-bar-chart-o fa-fw"></i> Precipitación
+                            
+                        </div>
+						<div class="panel-body">
+                            <div id="grafico-precipitacion"></div>
+                        </div>
+                    </div>
+                <!-- /.col-lg-12 -->
+				</div>
+				
+			
+{% endblock %}
+	
+{% endblock %}
+ 

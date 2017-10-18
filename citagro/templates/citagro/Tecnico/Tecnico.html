@@ -1,0 +1,385 @@
+{% load admin_static %}{% load firstof from future %}<!DOCTYPE html>
+
+
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<title>{% block title %}{% endblock %}</title>
+
+<link rel="stylesheet" href="{% static "css/bower_components/bootstrap/dist/css/bootstrap.min.css" %}">
+<link rel="stylesheet" href="{% static "css/aplicacion.css" %}">
+<link rel="stylesheet" href="{% static "css/bower_components/metisMenu/dist/metisMenu.min.css" %}">
+<link rel="stylesheet" href="{% static "css/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" %}">
+<link rel="stylesheet" href="{% static "css/css/sb-admin-2.css" %}">
+<link rel="stylesheet" href="{% static "css/bower_components/datatables-responsive/css/dataTables.responsive.css" %}">
+<link rel="stylesheet" href="{% static "css/bower_components/font-awesome/css/font-awesome.min.css" %}">
+
+
+{% block extrastyle %}{% endblock %}
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
+<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+<script type="text/javascript">window.__admin_utc_offset__ = "{% filter escapejs %}{% now "Z" %}{% endfilter %}";</script>
+<script src="{% static 'js/angular.min.js' %}"></script>
+<script src="{% static 'js/cookies.js' %}"></script>
+<script src="{% static 'js/app.js' %}"></script>
+<script src="{% static 'js/ui-bootstrap-tpls-0.6.0.js' %}"></script>
+<script src="{% static 'css/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'css/bower_components/angular/angular-route.js' %}"></script>
+<script src="{% static 'css/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'css/bower_components/metisMenu/dist/metisMenu.min.js' %}"></script>
+<script src="{% static 'js/sb-admin-2.js' %}"></script>
+<script src="{% static 'css/bower_components/DataTables/media/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'css/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js' %}"></script>
+
+{% block extrascripts %}{% endblock %}
+
+
+{% block extrahead %}{% endblock %}
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+</head>
+{% load i18n %}
+
+<body ng-app="administrador">
+	<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="{% url 'citagro:index' %}">Prueba Citagro</a>
+		</div>
+
+        <ul class="nav navbar-top-links navbar-right">
+            
+			<li class="dropdown">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-messages">
+					<li class="metadata"><strong>{% firstof user.get_full_name user.get_username %}</strong></li>
+					<li class="divider"></li>
+					<li><a href="#"><i class="fa fa-user fa-fw"></i>Ver perfil</a></li>
+					<li><a href="{% url 'citagro:password_change2' %}"><i class="fa fa-gear fa-fw"></i>{% trans 'Change password' %}</a></li>
+                    <li class="divider"></li>
+					<li><a href="{% url 'citagro:logout' %}"><i class="fa fa-sign-out fa-fw"></i>{% trans 'Log out' %}</a></li>
+                    </li>
+                </ul>
+				
+            </li>
+           
+          </ul>
+      </div>
+	  
+	  
+	  <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li class="sidebar-search">
+                            <div class="input-group custom-search-form">
+                                <input type="text" class="form-control" placeholder="Búsqueda...">
+                                <span class="input-group-btn">
+                                <button class="btn btn-default" type="button">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                            </div>
+                            <!-- /input-group -->
+                        </li>
+						<li>
+                            <a href="{% url 'citagro:index' %}"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                        </li>
+						<li>
+							<a href=""><i class="fa fa-th-list fa-fw"></i> Explotaciones Asignadas<span class="fa arrow"></span></a>
+							{% if lista_explotaciones %}
+							<ul class="nav nav-second-level">
+								{% for explotacion in lista_explotaciones %}
+                                <li>
+                                    <a href="{% url 'citagro:explotacion' explotacion.id %}">{{explotacion.Razon_Social}}</a>
+                                </li>
+								{% endfor %}
+                            </ul>
+							{% endif %}
+						</li>
+						
+                        
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+    </nav>
+	
+	<div id="page-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+					{% block breadcrumbs %}
+						 
+						<div class="row">
+							<ul class="row breadcrumb">
+								<li class="active"><strong>Inicio</strong></li>
+							</ul>
+						</div>
+
+					{% endblock %}
+                    
+					
+					{% block pretitle %}{% endblock %}
+					{% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+					{% block content %}
+					<div class="row" ng-controller="Dashboard" ng-init="inicia()">
+					  <div class="col-lg-12">
+							<div class="panel-heading">
+								<div class="row">
+									<div class="col-lg-3">
+										<label><i class="fa fa-th-list fa-2x">&nbsp;&nbsp;Explotaciones</i></label>
+									</div>
+									<div class="col-lg-4">
+										<select id="selectExplotacion" class="form-control" ng-change="cambiaExplotacion()" ng-model="explotacionSeleccionada">
+												{% for explotacion in lista_explotaciones %}
+												<option  value="{{explotacion.id}}">{{explotacion.Razon_Social}}</option>
+												{% endfor %}
+										</select>
+									</div>
+									<div class="col-lg-4">
+										<button type="button" class="btn btn-info" ng-click="redirecciona()"><i class="fa fa-th-list"></i> Acceso a datos</button>
+									</div>
+									
+									
+								</div>
+							</div>
+					</div>
+					
+					 <div class="col-lg-3 col-md-6">
+					</br>
+                    <div class="panel panel-yellow">
+                        
+						<div class="panel-heading">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <i class="fa fa-th-list fa-2x">&nbsp;&nbsp;Operaciones</i>
+                                </div>
+                            </div>
+                        </div>
+						
+						<a href="" ng-click="selectOperaciones()">
+							<div class="panel-footer">
+                                <span class="pull-left">Ver detalles</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                        
+                    </div>
+					</div>
+					
+				<div class="col-lg-3 col-md-6">
+                    </br>
+                    <div class="panel panel-green">
+                        
+						<div class="panel-heading">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <i class="fa fa-th-list fa-2x">&nbsp;&nbsp;Aplicaciones</i>
+                                </div>
+                            </div>
+                        </div>
+						
+						<a href="" ng-click="selectAnalisis()">
+							<div class="panel-footer">
+                                <span class="pull-left">Ver detalles</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                        
+                    </div>
+                </div>
+				 <div class="col-lg-3 col-md-6">
+				 </br>
+                    <div class="panel panel-primary">
+                       
+						<div class="panel-heading">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <i class="fa fa-gears fa-2x">&nbsp;&nbsp;Análisis</i>
+									
+                                </div>
+                            </div>
+                        </div>
+                        <a href="" ng-click="selectAnalisis()">
+							<div class="panel-footer">
+                                <span class="pull-left">Ver detalles</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+				 <div class="col-lg-3 col-md-6">
+				 </br>
+                    <div class="panel panel-red">
+                       
+						<div class="panel-heading">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <i class="fa fa-gears fa-2x">&nbsp;&nbsp;&nbsp;Muestreo</i>
+									
+                                </div>
+                            </div>
+                        </div>
+                        <a href="" ng-click="selectAnalisis()">
+							<div class="panel-footer">
+                                <span class="pull-left">Ver detalles</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+		<section ng-controller="PanelController as panel">
+		
+		<div  class="col-lg-12" ng-hide="muestraOperaciones">
+			</br>
+			<ul class="nav nav-tabs" id="paneles">
+			  <li ng-class="{active:panel.isSelected(1)}"><a href ng-click="fertilizacion(panel)" id="panel1"><i class="fa fa-leaf fa-fw"></i> Fertilización</a></li>
+			  <li role="presentation" ng-class="{ active:panel.isSelected(2)}"><a href ng-click="riego(panel)" id="panel2"><i class="fa fa-tint fa-fw"></i> Riego</a></li>
+			  <li role="presentation" ng-class="{ active:panel.isSelected(3)}"><a href ng-click="cultivo(panel)" id="panel3"><i class="fa fa-gear fa-fw"></i> Operaciones de Cultivo</a></li>
+			  <li role="presentation" ng-class="{ active:panel.isSelected(4)}"><a href ng-click="poda(panel)" id="panel4"><i class="fa fa-cut fa-fw"></i> Poda</a></li>
+			  <li role="presentation" ng-class="{ active:panel.isSelected(5)}"><a href ng-click="recoleccion(panel)" id="panel5"><i class="fa fa-pagelines fa-fw"></i> Recolección</a></li>
+			</ul>
+		</div>
+		<div class="panel-body">
+				<div class="row">
+				<div  class="col-lg-12"></br>
+					<div id ="panelMio" class="panel panel-success">
+                        <div class="panel-heading" >
+							<div class="form-inline">
+							<i id="iconoPanel" class="fa fa-leaf fa-fw"></i> <label id="tipoOperacion">Fertilización</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<label>Selecciona UHC&nbsp;</label>
+							<select id="selectExplotacion" class="form-control" ng-change="cambiaUHC()" ng-model="UHCSelect">
+								<option ng-repeat="uhc in uhcs" value="[[uhc.id]]">[[uhc.nombre]]</option>
+							</select>
+							<label ng-show="muestraAnyo">&nbsp;&nbsp;Selecciona año: </label>
+							<select ng-show="muestraAnyo" id="selectExplotacion" class="form-control" ng-model="anyoSelect" ng-change="cambiaAnyo()">
+								<option  selected="true" style="display:none;" value="">Filtrar por año</option>
+								<option ng-repeat="anyo in anyos| orderBy:'-'" value="[[anyo]]">[[anyo]]</option>
+							</select>
+							
+							</div>
+                        </div>
+						
+                        <div class="panel-body" style="max-height: 308px ;overflow-y: scroll;">
+							<div class="table-responsive">
+									
+									<table id="tableDashboard"class="table table-striped table-bordered table-hover" >
+										
+										<thead>
+											<tr>
+												<th>Temporada</th>
+												<th>UHC</th>
+												<th>UF Nitrógeno</th>
+												<th>UF Fósforo</th>
+												<th>UF Potasio</th>
+												<th>Abono aplicado(Kg)</th>
+											</tr>
+										</thead>
+										<tbody ng-repeat="dato in datosExplotacion| filter: {iduhc: UHCSelect,anyo3: anyoSelect|| ''}| orderBy:'-anyo2'">
+											<tr>
+												<td ng-hide="muestraCultivo">[[dato.anyo]]</td>
+												<td ng-show="muestraCultivo">
+													<a href="/administrador/operacion/[[dato.id]]">[[dato.anyo]]</a>
+												</td>
+												<td>[[dato.uhc_nombre]]</td>
+												<td ng-repeat="elemento in dato.list">[[elemento]]</td>
+											</tr>
+										</tbody>
+									</table>
+									<p ng-show="muestraCantidad" class="pull-right"><strong>Total recogido en [[anyoSelect]]: [[totalRecogido]] kg</strong></p>
+								</div>
+						</div>
+					</div>
+				</div>
+				</div>
+
+					</div>
+				</section>
+					
+					{% block object-tools %}{% endblock %}
+					{{ content }}
+					{% endblock %}
+					{% block sidebar %}{% endblock %}
+					<br class="clear" />
+                </div>
+
+            </div>
+
+    </div>
+	{% block footer %}<div id="footer"></div>{% endblock %}
+	
+	
+	
+<!-- END Container -->
+
+
+<script>
+    $(document).ready(function() {
+        $('#dataTables-example').DataTable({
+                responsive: true
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#dataTables-example4').DataTable({
+                responsive: true
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#dataTables-example2').DataTable({
+                responsive: true,
+				 searching: false
+				
+        });
+    });
+</script>
+<script>
+$('.popover-markup > .trigger').popover({
+	
+    html : true,
+    title: function() {
+      return $(this).parent().find('.head').html();
+    },
+    content: function() {
+      return $(this).parent().find('.content').html();
+    },
+    container: 'body',
+    placement: 'left'
+});
+</script>
+
+
+
+</body>
+
+
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

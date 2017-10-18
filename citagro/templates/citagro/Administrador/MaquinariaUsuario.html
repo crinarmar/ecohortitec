@@ -1,0 +1,276 @@
+{% extends "citagro/Administrador/Administrador.html" %}
+
+
+{% block breadcrumbs %}
+						 
+	<div class="row">
+		<ul class="row breadcrumb">
+			<li><a href="{% url 'citagro:index' %}">Inicio</a></li>
+			<li class="active"><strong>Maquinaria</strong></li>
+		</ul>
+	</div>
+
+{% endblock %}
+   
+{% block content %}
+<div class="col-lg-12">
+    <h1>Maquinaria y equipos</h1>
+</div>
+<div class="row" ng-controller="MaquinariaController">
+                <div class="col-lg-12">
+					</br>
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <strong>Maquinaria y equipos</strong>
+							<div class="subBoton"><a href="{% url 'citagro:creaMaquina'%}" class="text-warning"><i class="fa fa-plus fa-fw"></i><strong>Nueva Máquina</strong></a></div>
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div class="table-responsive">
+								
+                                <table class="table table-striped table-bordered table-hover">
+									
+                                    <thead>
+                                        <tr>
+											<th width="30"></th>
+                                            <th>Tipo de Máquina</th>
+											<th>Marca y Modelo</th>
+											<th>Numero de ROMA</th>
+											<th>Fecha de Adquisición</th>
+											<th>Fecha de Revisión</th>
+											<th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+										{% if lista_maquinas %}
+											{% for maquina in lista_maquinas %}
+											<tr>
+												<td><a href="#" data-toggle="modal" data-target="#info{{maquina.id}}" ng-click="datosMaquina('{{maquina.id}}')"><i class="fa fa-info-circle text-info"></i></a>
+												<div class="modal fade" id="info{{maquina.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+													<div class="modal-dialog ">
+														<div class="modal-content">
+															<div class="modal-header">
+																<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+																<h4 class="modal-title" id="myModalLabel">Información de la máquina</h4>
+															</div>
+															<div class="modal-body">
+																<div class="panel-body">
+																	<div class="row">
+																		<div class="col-lg-8">
+																			<div class="form-group">
+																				<div><label>Tipo de máquina:</label> {{maquina.TipoMaquina }}</div>
+																				<div><label>Marca/Modelo:</label> {{maquina.MarcaModelo}}</div>
+																				<div><label>Número en el ROPO:</label> {{maquina.numero_roma}}</div>
+																				<div><label>Fecha de adquisición:</label> {{maquina.fecha_adquisicion}}</div>
+																				<div><label>Fecha de la última revisión:</label> {{maquina.fecha_revision}}</div>
+																			</div>
+																		</div>
+																		
+																		
+																		{% if maquina.explotacion_asignada %}
+																		<div class="col-lg-12">
+																		</br>
+																			<div class="panel panel-default">
+																				<div class="panel-heading text-center">
+																					<strong>Explotaciones asignadas</strong>
+																				</div>
+																				<!-- /.panel-heading -->
+
+																				<div class="panel-body">
+																					<div class="table-responsive">
+
+																						<table class="table table-striped table-bordered table-hover text-center">
+																							
+																							<thead>
+																								<tr>
+																									<th class="text-center">Razon Social</th>
+																									<th class="text-center">CIF/NIF</th>
+																									<th class="text-center">Localidad</th>
+																								</tr>
+																							</thead>
+																							<tbody>
+																								{% for explotacion in maquina.explotacion_asignada %}
+																								<tr>
+																									<td>{{explotacion.Razon_Social}}</td>
+																									<td>{{explotacion.cif_nif}}</td>
+																									<td>{{explotacion.Localidad}} ({{explotacion.Provincia}})</td>
+																								</tr>
+																								{% endfor %}
+																		
+																							</tbody>
+																						</table>
+																					</div>
+
+																				</div>
+																				
+																			</div>
+																			
+																		</div>
+																		{% else %}
+																		</br>
+																		<div class="col-lg-12 text-danger text-center">
+																			<strong>No tiene ninguna explotación asignada</strong>
+																		</div>
+																		{% endif %}
+																		
+																		
+																		
+																	</div>
+																</div>
+															</div>
+															<div class="modal-footer">
+																<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modifica{{maquina.id}}">Modificar</button>
+																<div class="modal fade" id="modifica{{maquina.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+																	<div class="modal-dialog">
+																		<div class="modal-content">
+																			<div class="modal-header">
+																				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+																				<h4 class="modal-title" id="myModalLabel">Modificar Máquina</h4>
+																			</div>
+																			<div class="modal-body">
+																				<div class="panel-body">
+																					<div class="row">
+																						<form role="form" action="." method="POST">{% csrf_token %}
+																							 <div class="col-lg-4">
+																								<div class="form-group">
+																									<label>Número ROMA*</label>
+																									<input class="form-control" type="text" name="numero_roma" ng-model="numero_roma" />
+																								</div>
+																							</div>
+																							<div class="col-lg-12">
+																								
+																							</div>
+																							
+																							<div class="col-lg-6">
+																								<div class="form-group">
+																									<label>Tipo de Máquina*</label>
+																									<input class="form-control" type="text" name="TipoMaquina" ng-model="TipoMaquina">
+																								</div>
+																							</div>
+																							
+																							
+																															
+																							<div class="col-lg-6">
+																								<div class="form-group">
+																									<label>Marca/Modelo*</label>
+																									<input class="form-control" type="text" name="MarcaModelo" ng-model="MarcaModelo">
+																								</div>
+																							</div>
+																							<div class="col-lg-6">
+																								<div class="form-group">
+																									<label>Fecha de Adquisición*</label>
+																									<input id="fecha_adquisicion" class="form-control" type="date" name="fecha_adquisicion" ng-model="fecha_adquisicion">
+																								</div>
+																							</div>
+																							
+																							<div class="col-lg-6">
+																								<div class="form-group">
+																									<label>Fecha de Revisión*</label>
+																									<input class="form-control" type="date" name="fecha_revision" ng-model="fecha_revision2">
+																								</div>
+																							</div>
+																						</form>
+																					</div>
+																				</div>
+																			</div>
+																			<div class="modal-footer">
+																				<button type="button" class="btn btn-info" ng-click="modMaquina('{{maquina.id}}','{{maquina.idAdmin.id}}')">Modificar</button>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															 </div>
+														</div>
+													</div>
+												</div>
+												
+												
+												
+												
+												
+												
+												
+												
+												</td>
+												<td>{{maquina.TipoMaquina }}</td>
+												<td>{{maquina.MarcaModelo}}</td>
+												<td>{{maquina.numero_roma}}</td>
+												<td>{{maquina.fecha_adquisicion}}</td>
+												<td>{{maquina.fecha_revision}}&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" data-toggle="modal" data-target="#{{maquina.id}}"><i class="fa fa-check-square-o text-info"></i></a>
+													<div class="modal fade" id="{{maquina.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+														<div class="modal-dialog modal-sm">
+															<div class="modal-content">
+															    <div class="modal-header">
+																	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+																	<h4 class="modal-title" id="myModalLabel">Hacer revisión</h4>
+																</div>
+																<div class="modal-body">
+																	<div class="panel-body">
+																		<div class="row">
+																			<div class="col-lg-12">
+																				<div class="form-group">
+																					<label>Fecha de Revisión*</label>
+																					<input class="form-control" type="date" name="fecha_revision" ng-model="fecha_revision">
+																				</div>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+																<div class="modal-footer">
+																	<button type="button" class="btn btn-info" ng-click="revisionMaquina({{maquina.id}})">Guardar</button>
+																</div>
+															</div>
+														</div>
+													</div>
+												
+												
+												</td>
+												<td><a href="#" data-toggle="modal" data-target="#eliminaMaquina{{maquina.id}}"><i class="fa fa-trash-o text-danger"></i></a>
+													<div class="modal fade" id="eliminaMaquina{{maquina.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+														<div class="modal-dialog modal-sm">
+															<div class="modal-content">
+															    <div class="modal-header">
+																	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+																	<h4 class="modal-title" id="myModalLabel">¿Desea eliminar esta máquina?</h4>
+																</div>
+																
+																<div class="modal-body">
+																	<div class="panel-body">
+																		<div class="row">
+																			<div class="col-lg-12">
+																				<p class="text-center"><strong>{{maquina.TipoMaquina}} ({{maquina.MarcaModelo}}) - {{maquina.numero_roma}}</strong></p>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+																
+																<div class="modal-footer">
+																	<div class="col-lg-12">
+																		<button type="button" class="btn btn-success pull-left" ng-click="eliminarMaquina('{{maquina.id}}')">Si</button>
+																		<button type="button" class="btn btn-danger pull-right" ng-click="cierraVentanta('{{maquina.id}}')">No</button>
+																		<br></br>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</td>
+											</tr>
+											{% endfor %}
+										{% endif %}
+                                        
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.table-responsive -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+        
+{% endblock %}
+

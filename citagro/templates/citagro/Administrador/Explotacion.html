@@ -1,0 +1,1979 @@
+{% extends "citagro/Administrador/Administrador.html" %}
+{% load i18n %}
+{% load admin_static %}
+
+
+{% block breadcrumbs %}
+						 
+	<div class="row">
+		<ul class="row breadcrumb">
+			<li><a href="{% url 'citagro:tecnico' %}">Inicio</a></li>
+			<li class="active"><strong>{{explotacion.Razon_Social}}</strong></li>
+			<li class="active"><strong>{{uhc.nombre}}</strong></li>
+		</ul>
+	</div>
+
+{% endblock %}
+
+{% block content %}
+
+
+<section ng-controller="PanelController as panel">
+	{% if administrador %}
+	<ul class="nav nav-tabs">
+	  <li role="presentation" ng-class="{ active:panel.isSelected(1)}"><a href ng-click="panel.selectTab(1)">Parcelas</a></li>
+	  <li role="presentation" ng-class="{ active:panel.isSelected(2)}"><a href ng-click="panel.selectTab(2)">Técnicos Asignados</a></li>
+	  <li role="presentation" ng-class="{ active:panel.isSelected(3)}"><a href ng-click="panel.selectTab(3)">Maquinaria</a></li>
+	  <li role="presentation" ng-class="{ active:panel.isSelected(4)}"><a href ng-click="panel.selectTab(4)">Aplicadores</a></li>
+	  <li role="presentation" ng-class="{ active:panel.isSelected(5)}"><a href ng-click="panel.selectTab(5)">Datos Climáticos</a></li>
+	</ul>
+	{% endif %}
+{% if idUHC %}
+	<div ng-controller="AdministradorController" ng-init="initializeUHC('{{userid}}','{{explotacion.id}}',{{idUHC}})"> 
+{% else %}
+	<div ng-controller="AdministradorController" ng-init="initialize('{{userid}}','{{explotacion.id}}')"> 
+{% endif %}
+<div class="panel" ng-show="panel.isSelected(1)">
+	</br>
+	<div class="row">
+		<div class="col-lg-6">
+			<div class="form-inline">
+				<label>Selecciona UHC </label>
+				&nbsp;
+				<select class="form-control" name="uhc" ng-model="uhcSeleccionado" ng-change="cambia({{explotacion.id}})" required>
+					<option value="">Todas</option>
+					{% for uhc in uhcsExplotacion %}
+					<option value="{{uhc.id}}">{{uhc.nombre}}</option>
+					{% endfor %}
+					{% if administrador %}<option class="bg-primary" value="nueva">---Nueva UHC---</option>{% endif %}
+				</select>
+				
+			</div>
+		</div>
+		{% if administrador %}
+		<div class="col-lg-6" ng-show="uhcSeleccionado == 'nueva'">
+			<div class="form-inline">
+				<label>Descriptor de UHC</label>
+				<input id="uhcid" class="form-control" type="text" name="uhc" ng-model="uhc" />
+				<button type="button" class="btn btn-success" ng-click="creaUHC('{{explotacion.id}}')">Guardar</button>
+			</div>
+		</div>
+		{% endif %}
+		<div class="col-lg-12">
+			<div class="form-group">
+			</div>
+		</div>
+		
+		<div class="col-lg-12">
+                    <div class="panel panel-success">
+                        <div class="panel-heading">
+                            <strong>Cultivo: {{cultExplotacion.idCultivo.nombre}}</strong>
+							<div class="pull-right">
+								{% if not cultivoExpl %}
+								<a href="#" data-toggle="modal" data-target="#nuevocultivo" ><i class="fa fa-plus fa-fw"></i><strong> Seleccionar Cultivo</strong></a>
+								{% endif %}
+								<div class="modal fade" id="nuevocultivo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+								  <div class="modal-dialog">
+									<div class="modal-content">
+									  <div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+										<h4 class="modal-title" id="myModalLabel">Seleccionar cultivo</h4>
+									  </div>
+									  <div class="modal-body">
+										<div class="panel-body">
+											<div class="row">
+												<form name="cultivoForm" role="form" action="." method="POST">{% csrf_token %}
+														<div class="col-lg-3">
+														<div class="form-group">
+															<label>Cultivo*</label>
+																<select id = "cultivoCult" class="form-control" ng-model="cultivoCult">
+																<option ng-repeat="cultivo in cultivos" value="[[cultivo.id]]">[[cultivo.nombre]]</option>
+																</select>
+														</div>
+																</div>
+													
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>Superficie</label>
+															<input class="form-control"  ng-model="superficieCultivo"></textarea>
+														</div>
+													</div>
+													
+													
+												
+												</form>
+											</div>	
+										</div>
+									  </div>
+									  <div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+										<button type="button" class="btn btn-primary" ng-click="guardarCultivo('{{explotacion.id}}','{{idUHC}}')">Guardar</button>
+									  </div>
+									</div>
+								  </div>
+								</div>
+							</div>
+							
+                        </div>
+						<div class="panel-body" >
+	
+					<!-- /.table-responsive -->
+				</div>
+				<div class="panel">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<strong>Evaluación Ambiental - UHC</strong>
+
+							
+								</div>
+								<div class="panel-body" style="max-height: 308px ;overflow-y: scroll;">
+									<div class="table-responsive">
+						
+						<table class="table table-striped table-bordered table-hover">
+							
+							<thead>
+								<tr>
+									<th>Nombre UHC</th>
+                                    <th>Indicador Evaluación Ambiental (Kg CO<sub>2e</sub>)</th>
+                                    <th>Coste Asociado (€)</th>
+									
+								</tr>
+							</thead>
+							<tbody>
+								
+								<tr>
+									<td>{{uhc.nombre}}</td>
+									<td>{{uhc.indicadorEvAmbiental}}</td>
+									<td>{{uhc.costeAsociado}} </td>
+									<td ><a  href="/informeUHC/{{uhc.id}}"><i class="fa fa-file-pdf-o text-danger" title="Descargar informe"></i></a></td>
+									
+	
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					</div>
+						
+                        <!-- /.panel-body -->
+							</div>
+						</div>			
+					<div class="panel panel-success">
+                       
+                        <!-- /.panel-heading -->
+					
+					<div class="row col-lg-12">
+					</br> 
+					<ul class="nav nav-pills">
+						 <li role="presentation" ng-class="{ active:panel.isSelectedSec(4)}"><a href ng-click="panel.selectTabSec(4)"><i class="fa fa-gear"></i> Operaciones</a></li>
+						  <li role="presentation" ng-class="{ active:panel.isSelectedSec(2)}"><a href ng-click="panel.selectTabSec(2)"><i class="fa fa-fire-extinguisher"></i> Aplicaciones</a></li>
+						 <li role="presentation" ng-class="{ active:panel.isSelectedSec(1)}"><a href ng-click="panel.selectTabSec(1)"><i class="fa fa-bar-chart-o"></i> Seguimiento y Muestreo</a></li>
+						  <li role="presentation" ng-class="{ active:panel.isSelectedSec(3)}"><a href ng-click="panel.selectTabSec(3)"><i class="fa fa-search"></i> Análisis</a></li>
+					</ul>
+					</br>
+					
+						<div class="panel" ng-show="panel.isSelectedSec(1)">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<strong>Seguimiento y Muestreo</strong>
+									<div class="pull-right" >
+										<a href="#" data-toggle="modal" data-target="#nuevaMuestra"><i class="fa fa-plus fa-fw"></i><strong> Nueva Muestra</strong></a>
+										<div class="modal fade" id="nuevaMuestra" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-controller="creaMuestra">
+										  <div class="modal-dialog modal-lg">
+											<div class="modal-content">
+											  <div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+												<h4 class="modal-title" id="myModalLabel">Nueva Muestra</h4>
+											  </div>
+											  <div class="modal-body">
+												<div class="panel-body">
+													<div class="row">
+														<form name="OperacionForm" role="form" action="." method="POST">{% csrf_token %}
+															<div class="row">
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Técnico:</label>
+																		{% if administrador %}
+																		<select class="form-control" ng-model="MuestraTecnico">
+																		<option  selected="true" style="display:none;" value="">Selecciona Técnico</option>
+																			<option ng-repeat="usuario in usuarios" value="[[usuario.idUsuario]]">[[usuario.usNombre]] [[usuario.usApellido1]] [[usuario.usApellido2]]</option>
+											
+																		</select>
+																		{% else %}
+																			<p><strong>{{tecnico.Nombre}} {{tecnico.Apellido1}} {{tecnico.Apellido2}}</strong></p>
+																		{% endif %}
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Horas dedicadas por técnico:</label>
+
+																		<input type="text" class="form-control" ng-model="horasMu"/>
+																	</div>
+																</div>
+																<div class="col-lg-12">
+																</div>
+																<div class="col-md-4">
+																	<div class="form-group">
+																	<label>Fecha de la muestra*</label>
+																		<input type="date" id="fecha_muestra" class="form-control" ng-model="fecha_muestra" />
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>UHC*</label>
+																		<select class="form-control" ng-model="MuestraUHC">
+																		{% if uhcsExplotacion %}
+																			{% for uhcr in uhcsExplotacion %}
+																			<option  value="{{uhcr.id}}">{{uhcr.nombre}}</option>
+																			{% endfor %}
+																		{% endif %}
+																		</select>
+																	</div>
+																</div>
+																
+																<div class="col-lg-12">
+																<div class="row">
+																		<div class="col-lg-4">
+																			<div class="list-group">
+																			  <a id="fenol" href="" class="list-group-item active" ng-click="fenologia()">
+																				Fenología
+																			  </a>
+																			  <a id="tramp" href="" class="list-group-item" ng-click="trampas()">Plagas</a>
+																			  <a id="insect" href="" class="list-group-item" ng-click="insectos()">Insectos auxiliares</a>
+																			  <a id="enferm" href="" class="list-group-item" ng-click="enfermedades()">Enfermedades</a>
+																			</div>
+																		</div>
+																		<div class="col-lg-8">
+																			<div class="panel panel-default">
+																				  <div class="panel-heading">
+																					<h3 class="panel-title">OPCIONES</h3>
+																				  </div>
+																				  <div class="panel-body" style="max-height: 250px ;overflow-y: scroll;">
+																						<div class="row">
+																							<div class="table-responsive">
+									
+																								<table id="tablaMuestras" class="table table-striped table-bordered table-hover">
+																									
+																									<thead>
+																										<tr>
+																											<th>Fenología (Flor masculina/femenina)</th>
+																											<th width="90"></th>
+																										</tr>
+																									</thead>
+																									<tbody ng-show="muestraFenologia">
+																										
+																										<tr ng-repeat ="elemento in arrayFenologia">
+																											<td>[[elemento.letra]] [[elemento.texto]]</td>
+																											<td>
+																												<!--<select id="[[elemento.letra]]" class="form-control">
+																													<option ng-repeat ="valor in valores" value="valor">[[valor]]</option>
+																												</select>-->
+																												<input id ="[[elemento.letra]]" ng-model="elemento.valor" type="text" class="form-control"/>
+																											</td>
+																										</tr>
+																									</tbody>
+																									<tbody ng-show="muestraInsectos">
+																										
+																										<tr ng-repeat ="insecto in arrayInsectos">
+																											<td>[[insecto.texto]]</td>
+																											<td>
+																												<input id ="[[insecto.letra]]" ng-model="insecto.valor" type="text" class="form-control"/>
+																											</td>
+																										</tr>
+																									</tbody>
+																									<tbody ng-show="muestraTrampas">
+																										
+																										<tr ng-repeat ="trampa in arrayTrampas">
+																											<td>[[trampa.texto]]</td>
+																											<td>
+																												<input id="[[trampa.letra]]" ng-model="trampa.valor" type="text" class="form-control"/>
+																											</td>
+																										</tr>
+																									</tbody>
+																									<tbody ng-show="muestraEnfermedades">
+																										
+																										<tr ng-repeat ="enfermedad in arrayEnfermedades">
+																											<td>[[enfermedad.texto]]</td>
+																											<td>
+																												<input id="[[enfermedad.letra]]" ng-model="enfermedad.valor" type="text" class="form-control"/>
+																											</td>
+																										</tr>
+																									</tbody>
+																								</table>
+																							</div>
+																						</div>
+																				  </div>
+																		
+																			</div>
+																		</div>
+																</div>
+																
+																</div>
+																<div class="col-lg-12">
+																	<div class="form-group">
+																		<label>Observaciones:</label>
+																		<textarea class="form-control" rows="3" ng-model="observaciones2"></textarea>
+																	</div>
+																</div>
+															</div>
+														</form>
+													</div>	
+												</div>
+											  </div>
+											  <div class="modal-footer">
+												<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+												{% if administrador %}
+												<button type="button" class="btn btn-primary" ng-click="guardarMuestra('{{explotacion.id}}',MuestraTecnico,'administrador')">Guardar</button>
+												{% else %}
+												<button type="button" class="btn btn-primary" ng-click="guardarMuestra('{{explotacion.id}}','{{tecnico.id}}','tecnico')">Guardar</button>
+												{% endif %}
+											  </div>
+											</div>
+										  </div>
+										</div>
+									</div>
+							
+								</div>
+                        <!-- /.panel-heading -->
+							<div class="panel-body" style="max-height: 308px ;overflow-y: scroll;">
+								<div class="table-responsive">
+									
+									<table class="table table-striped table-bordered table-hover" >
+										
+										<thead>
+											<tr>
+												<th width="30"></th>
+												<th>Fecha muestra</th>
+												<th>UHC</th>
+												<th>Técnico</th>
+												<th>Observaciones</th>
+											</tr>
+										</thead>
+										<tbody>
+											{% for muestra in muestras %}
+											<tr >
+												{% if administrador %}
+												<td><a href="/administrador/muestreo/{{muestra.id}}"><i class="fa fa-info-circle text-info"></i></a></td>
+												{% else %}
+												<td><a href="/tecnico/muestreo/{{muestra.id}}"><i class="fa fa-info-circle text-info"></i></a></td>
+												{% endif %}
+												<td>{{muestra.fecha_muestreo}}</td>
+												<td>{{muestra.idUHC.nombre}}</td>
+												<td>{{muestra.tecnico.Nombre}} {{muestra.tecnico.Apellido1}} {{muestra.tecnico.Apellido2}}</td>
+												<td>{{muestra.observaciones}}</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+								
+								<!-- /.table-responsive -->
+							</div>
+						
+                        <!-- /.panel-body -->
+                    </div>
+						</div>
+						<div class="panel" ng-show="panel.isSelectedSec(2)">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<strong>Aplicaciones</strong>
+									<div class="pull-right" ><a href="#" data-toggle="modal" data-target="#nuevaAplicacion"><i class="fa fa-plus fa-fw"></i><strong> Nueva Aplicación</strong></a></div>
+									<div class="modal fade" id="nuevaAplicacion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+														  <div class="modal-dialog modal-lg">
+															<div class="modal-content">
+															  <div class="modal-header">
+																<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+																<h4 class="modal-title" id="myModalLabel">Nueva Aplicación</h4>
+															  </div>
+															  <div class="modal-body">
+																<div class="panel-body">
+																	<div class="row">
+																		<form name="ParcelaForm" role="form" action="." method="POST">{% csrf_token %}
+																			<div class="row">
+																				<div class="col-lg-4">
+																					<div class="form-group">
+																						<label>Técnico:</label>
+																						{% if administrador %}
+																						<select  class="form-control" ng-model="AplicacionTecnico">
+																						<option  selected="true" style="display:none;" value="">Selecciona Técnico</option>
+																							<option  ng-repeat="usuario in usuarios" value="[[usuario.idUsuario]]">[[usuario.usNombre]] [[usuario.usApellido1]] [[usuario.usApellido2]]</option>
+															
+																						</select>
+																						{% else %}
+																							<p><strong>{{tecnico.Nombre}} {{tecnico.Apellido1}} {{tecnico.Apellido2}}</strong></p>
+																						{% endif %}
+																						
+																					</div>
+																				</div>
+																				<div class="col-lg-4">
+																					<div class="form-group">
+																						<label>Horas dedicadas por técnico:</label>
+
+																						<input type="text" class="form-control" ng-model="horasAp"/>
+																					</div>
+																				</div>
+																				<div class="col-lg-12">
+																				</div>
+																				<div class="col-lg-4">
+																					<div class="form-group">
+																						<label>Nº orden tratamiento:</label>
+																							<input type="text" class="form-control"ng-model="n_tratamiento" />
+																					</div>
+																				</div>
+																				
+																				<div class="col-lg-4">
+																					<div class="form-group">
+																					<label>Fecha orden tratamiento:</label>
+																						<input type="date" id="fechatratamiento" class="form-control" ng-model="fechatratamiento" />
+																					</div>
+																				</div>
+																				
+																				<div class="col-lg-4">
+																					<div class="form-group">
+																						<label>Fecha de la aplicación</label>
+																						<input type="date" id="fechaaplicacion" class="form-control" ng-model="fechaaplicacion" />
+																					</div>
+																				</div>
+																				<div class="col-lg-4">
+																					<div class="form-group">
+																						<label>UHC:</label>
+																						<select class="form-control" ng-model="AplicacionUHC">
+																						<option  selected="true" style="display:none;" value="">Selecciona UHC</option>
+																						{% if uhcsExplotacion %}
+																							{% for uhcr in uhcsExplotacion %}
+																							<option  value="{{uhcr.id}}">{{uhcr.nombre}}</option>
+																							{% endfor %}
+																						{% endif %}
+																						</select>
+																					</div>
+																				</div>
+																				
+																				
+																				
+																				<div class="col-lg-4">
+																					<div class="form-group">
+																						<label>Gasto caldo(l/ha):</label>
+
+																						<input type="text" class="form-control" placeholder="Ej. 600" ng-model="g_caldo"/>
+																					</div>
+																				</div>
+																				
+																				<div class="col-lg-4">
+																					<div class="form-group">
+																						<label>Distribución aplicación:</label>
+																						<input type="text" class="form-control" placeholder="Ej. Bandas" ng-model="distribucion_ap"/>
+
+																					</div>
+																				</div>
+																				
+																				<div class="col-lg-3">
+																					<div class="form-group">
+																						<label>Superficie tratada(ha):</label>
+																						<input type="text" class="form-control" placeholder="Ej. 15" ng-model="superficie_tratada"/>
+																						<label>Total<input type="radio" ng-model="sp" value="100"></label>
+																						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																						<label>Parcial<input type="radio" ng-model="sp" value="1"></label>
+																					</div>
+																				</div>
+																				
+																				<div class="col-lg-2">
+																					<div class="form-group">
+																						<label>Porcentaje(%):</label>
+
+																						<input type="text" class="form-control" placeholder="Ej. 25" ng-model="porcentaje" ng-disabled="isSelectedParcial(sp)"/>
+																					</div>
+																				</div>
+																				
+																				
+																				
+																				<div class="col-lg-7">
+																					<div class="form-group">
+																						<label>Condiciones aplicación:</label>
+																						<input type="text" class="form-control" placeholder="Ej. Favorables" ng-model="condiciones_ap"/>
+
+																					</div>
+																				</div>
+																				
+																		        <div class="col-lg-12">
+																					</br>
+																				</div>
+																				
+																				<div class="col-lg-4">
+																					<div class="form-group">
+																						<label>Presión tratamiento(Kg/cm&sup2;):</label>
+																						<input type="text" class="form-control"  ng-model="presion"/>
+
+																					</div>
+																				</div>
+																				<div class="col-lg-4">
+																					<div class="form-group">
+																						<label>Velocidad(Km/h):</label>
+																						<input type="text" class="form-control"  ng-model="velocidad"/>
+
+																					</div>
+																				</div>
+																				<div class="col-lg-4">
+																					</br>
+																				</div>
+																				<div class="col-lg-6">
+																					<div class="form-group">
+																						<label>Aplicador:</label>
+																						<select class="form-control"ng-model="aplicadorSeleccionado" required>
+																						{% if aplicadores %}
+																							{% for aplicador in aplicadores %}
+																							<option  value="{{aplicador.id}}">{{aplicador.nombre}} {{aplicador.apellido1}} {{aplicador.apellido2}} ({{aplicador.razon_social}})</option>
+																							{% endfor %}
+																						{% endif %}
+												
+																						</select>
+
+																					</div>
+																				</div>
+																				<div class="col-lg-6">
+																					<div class="form-group">
+																						<label>Maquinaria:</label>
+																						<select class="form-control"ng-model="maquinariaSeleccionado" required>
+																						{% if maquinasusadas %}
+																							{% for maquina in maquinasusadas %}
+																							<option  value="{{maquina.id}}">{{maquina.TipoMaquina}} - {{maquina.MarcaModelo}}- {{maquina.numero_roma}}</option>
+																							{% endfor %}
+																						{% endif %}
+																						</select>
+
+																					</div>
+																				</div>
+																				
+																				
+																				
+																				<div class="col-lg-5">
+																					<div class="form-group">
+																					
+																					<label>Hora inicio aplicación:</label>
+																					<input type="time" name="usr_time" ng-model="mytime">
+																					
+																					 
+																					</div>
+																				</div>
+																				
+
+																				<div class="col-lg-6">
+																					<div class="form-group">
+																						<label>Observaciones:</label>
+																						<textarea class="form-control" rows="3" ng-model="observaciones"></textarea>
+
+																					</div>
+																				</div>
+																				
+																				
+																				
+																				
+																			
+																			</div>
+																		</form>
+																	</div>	
+																</div>
+															  </div>
+															  <div class="modal-footer">
+																<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+																{% if administrador %}
+																	<button type="button" class="btn btn-primary" ng-click="guardarAplicacion(0)">Guardar</button>																
+																{% else %}
+																	<button type="button" class="btn btn-primary" ng-click="guardarAplicacion({{tecnico.id}})">Guardar</button>
+																{% endif %}
+																
+															  </div>
+															</div>
+														  </div>
+														</div>
+							
+								</div>
+                        <!-- /.panel-heading -->
+							<div class="panel-body" style="max-height: 308px ;overflow-y: scroll;">
+								<div class="table-responsive">
+									
+									<table class="table table-striped table-bordered table-hover" >
+										
+										<thead>
+											<tr>
+												<th width="30"></th>
+												<th>Fecha aplicación</th>
+												<th>UHC</th>
+												<th>Aplicador</th>
+												<th>Maquinaria</th>
+											</tr>
+										</thead>
+										<tbody>
+											{%for aplicacion in  aplicacionesUHC %}
+											<tr> <!--ng-repeat="aplicacion in aplicaciones | filter: {idUHC: uhcSeleccion|| ''} | orderBy : -fecha_Orden_tratamiento">-->
+												{% if administrador %}
+												<td><a href="/administrador/aplicacion/{{aplicacion.id}}"><i class="fa fa-info-circle text-info"></i></a></td>
+												{% else %}
+												<td><a href="/tecnico/aplicacion/{{aplicacion.id}}"><i class="fa fa-info-circle text-info"></i></a></td>
+												{% endif %}
+												<td>{{aplicacion.fecha_Aplicacion}}</td>
+												<td>{{aplicacion.idUHC.nombre}}</td>
+												<td>{{aplicacion.aplicador.nombre}} {{aplicacion.aplicador.apellido1}} {{aplicacion.aplicador.apellido2}}</td>
+												<td>{{aplicacion.maquinaria.TipoMaquina}} {{aplicacion.maquinaria.MarcaModelo}} ({{aplicacion.maquinaria.numero_roma}})</td>
+											</tr>
+											{% endfor %}
+											
+										</tbody>
+									</table>
+								</div>
+								
+								<!-- /.table-responsive -->
+							</div>
+						
+                        <!-- /.panel-body -->
+                    </div>
+						</div>
+						<div class="panel" ng-show="panel.isSelectedSec(4)">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<strong>Operaciones</strong>
+									<div class="pull-right" >
+										<a href="#" data-toggle="modal" data-target="#nuevaOperacion"><i class="fa fa-plus fa-fw"></i><strong> Nueva Operación</strong></a>
+										<div class="modal fade" id="nuevaOperacion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" ng-controller="CreaOperacion">
+										  <div class="modal-dialog modal-lg">
+											<div class="modal-content">
+											  <div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+												<h4 class="modal-title" id="myModalLabel">Nueva Operación</h4>
+											  </div>
+											  <div class="modal-body">
+												<div class="panel-body">
+													<div class="row">
+														<form name="OperacionForm" role="form" action="." method="POST">{% csrf_token %}
+															<div class="row">
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Técnico:</label>
+																		{% if administrador %}
+																		<select class="form-control" ng-model="OperacionTecnico">
+																		<option  selected="true" style="display:none;" value="">Selecciona Técnico</option>
+																			<option ng-repeat="usuario in usuarios" value="[[usuario.idUsuario]]">[[usuario.usNombre]] [[usuario.usApellido1]] [[usuario.usApellido2]]</option>
+											
+																		</select>
+																		{% else %}
+																			<p><strong>{{tecnico.Nombre}} {{tecnico.Apellido1}} {{tecnico.Apellido2}}</strong></p>
+																		{% endif %}
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Horas dedicadas por técnico:</label>
+
+																		<input type="text" class="form-control" ng-model="horasOp"/>
+																	</div>
+																</div>
+																<div class="col-lg-12">
+																</div>
+																<div class="col-md-4">
+																	<div class="form-group">
+																	<label>Fecha de la operación*</label>
+																		<input type="date" id="fecha_operacion" class="form-control" ng-model="fecha_operacion" />
+																	</div>
+																</div>
+																<!--<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>UHC*</label>
+																		<select class="form-control" ng-model="OperacionUHC">
+																		{% if uhcsExplotacion %}
+																			{% for uhcr in uhcsExplotacion %}
+																			<option  value="{{uhcr.id}}">{{uhcr.nombre}}</option>
+																			{% endfor %}
+																		{% endif %}
+																		</select>
+																	</div>
+																</div>-->
+																
+																<div class="col-lg-3">
+																	<div class="form-group">
+																		<label>Parcela</label>
+																			<select class="form-control" ng-model="ParcelaOperacion">
+																			<option ng-repeat="parcela in parcelas  | filter: {idExplotacion: idExpSeleccionado}" value="[[parcela.id]]">[[parcela.poligono]]-[[parcela.parcela]]-[[parcela.recinto]]- Sup: [[parcela.superficie_hectareas]]</option>
+																			</select>
+																	</div>
+																</div>
+																<div class="col-lg-3">
+																	<div class="form-group">
+																		<label>Tipo de Operacion*</label>
+																			<select id = "tipoOp" class="form-control" ng-model="operacionTipo">
+																			<option ng-repeat="tipo in Tipos | orderBy: 'orden' " value="[[tipo.id]]">[[tipo.nombre]]</option>
+																			</select>
+																	</div>
+																</div>
+																<div class="col-lg-3">
+																	<div class="form-group">
+																		<label>Input*</label>
+																			<select id="inputOp" class="form-control" ng-model="operacionInput" ng-change="cambioInput()">
+																			<option ng-repeat="input in Inputs | filter: {idTipoOp: operacionTipo}" value="[[input.id]]">[[input.input]]</option>
+																			</select>
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Cantidad</label>
+
+																		<input  class="form-control" ng-model="cantidadOperacion"/>
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Unidad</label>
+
+																		<input  class="form-control" ng-model="unidadOperacion"/>
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Coeficiente de emisión</label>
+
+																		<input class="form-control" ng-model="coefEmisionOperacion"/>
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Unidad coef Emisión</label>
+
+																		<input  class="form-control" ng-model="unidadCoefOperacion"/>
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Coeficiente Asignación</label>
+
+																		<input  class="form-control" ng-model="coefAsigOperacion"/>
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Coste Unitario</label>
+
+																		<input  class="form-control" ng-model="costeUnitarioOperacion"/>
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Observaciones</label>
+
+																		<input type="text" class="form-control" ng-model="observacionesOperacion"/>
+																	</div>
+																</div>
+															</div>
+														</form>
+													</div>	
+												</div>
+											  </div>
+											  <div class="modal-footer">
+												<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+												{% if administrador %}
+												<button type="button" class="btn btn-primary" ng-click="guardarOperacion('{{explotacion.id}}',OperacionTecnico,'administrador')">Guardar</button>
+												{% else %}
+												<button type="button" class="btn btn-primary" ng-click="guardarOperacion('{{explotacion.id}}','{{tecnico.id}}','tecnico','{{idUHC}}')">Guardar</button>
+												{% endif %}
+											  </div>
+											</div>
+										  </div>
+										</div>
+									</div>
+							
+								</div>
+                        <!-- /.panel-heading -->
+							<div class="panel-body" style="max-height: 308px ;overflow-y: scroll;">
+								<div class="table-responsive">
+									
+									<table class="table table-striped table-bordered table-hover" >
+										
+										<thead>
+											<tr>
+												<th width="30"></th>
+												<th>Fecha operación</th>
+												<th>UHC</th>
+												<th>Tipo de operación</th>
+												<th>Input operación</th>
+												<th>Cantidad</th>
+												<th>Unidad</th>
+												<th>Huella ambiental (KgCO<sub>2e</sub>)</th>
+												<th>Observaciones</th>
+												
+											</tr>
+										</thead>
+										<tbody>
+
+											<tr ng-repeat="operacion in Operaciones| filter: {idUHC: uhcSeleccion}| orderBy :'-fecha_operacion'">
+												{% if administrador %}
+												<td><a href="/administrador/operacion/[[operacion.id]]"><i class="fa fa-info-circle text-info"></i></a></td>
+												{% else %}
+												<td><a href="/tecnico/operacion/[[operacion.id]]"><i class="fa fa-info-circle text-info"></i></a></td>
+												{% endif %}
+												<td>[[operacion.fecha_operacion | date: 'dd/MM/yyyy']]</td>
+												<td>[[operacion.uhc_nombre]]</td>
+												<td>[[operacion.tipoOperacion]]</td>
+												<td>[[operacion.inputOperacion]]</td>
+												<td>[[operacion.cantidad]]</td>
+												<td>[[operacion.unidad]]</td>
+												<td>[[operacion.emisionesTotal]]</td>
+												<td>[[operacion.observaciones]]</td>
+											</tr>
+											
+										</tbody>
+									</table>
+								</div>
+								
+								<!-- /.table-responsive -->
+							</div>
+						
+                        <!-- /.panel-body -->
+                    </div>
+						</div>
+						<div class="panel" ng-show="panel.isSelectedSec(3)">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<strong>Análisis</strong>
+									<div class="pull-right" ng-controller="CreaAnalisis">
+										<a href="#" data-toggle="modal" data-target="#nuevoAnalisis"><i class="fa fa-plus fa-fw"></i><strong> Nuevo Análisis</strong></a>
+										<div class="modal fade" id="nuevoAnalisis" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+										  <div class="modal-dialog">
+											<div class="modal-content">
+											  <div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+												<h4 class="modal-title" id="myModalLabel">Nuevo Análisis</h4>
+											  </div>
+											  <div class="modal-body">
+												<div class="panel-body">
+													<div class="row">
+														<form name="AnalisisForm" role="form" action="." method="POST">{% csrf_token %}
+															<div class="row">
+																<div class="col-lg-6">
+																	<div class="form-group">
+																		<label>Técnico:</label>
+																		{% if administrador %}
+																		<select class="form-control" ng-model="AnalisisTecnico">
+																		<option  selected="true" style="display:none;" value="">Selecciona Técnico</option>
+																			<option ng-repeat="usuario in usuarios" value="[[usuario.idUsuario]]">[[usuario.usNombre]] [[usuario.usApellido1]] [[usuario.usApellido2]]</option>
+											
+																		</select>
+																		{% else %}
+																			<p><strong>{{tecnico.Nombre}} {{tecnico.Apellido1}} {{tecnico.Apellido2}}</strong></p>
+																		{% endif %}
+																	</div>
+																</div>
+																<div class="col-lg-6">
+																	<div class="form-group">
+																		<label>Horas dedicadas por técnico:</label>
+
+																		<input type="text" class="form-control" ng-model="horasAn"/>
+																	</div>
+																</div>
+
+																<div class="col-md-4">
+																	<div class="form-group">
+																	<label>Fecha de la muestra</label>
+																		<input type="date" id="fechamuestra" class="form-control" ng-model="fechamuestra" />
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>UHC</label>
+																		<select class="form-control" ng-model="AnalisisUHC">
+																		{% if uhcsExplotacion %}
+																			{% for uhcr in uhcsExplotacion %}
+																			<option  value="{{uhcr.id}}">{{uhcr.nombre}}</option>
+																			{% endfor %}
+																		{% endif %}
+																		</select>
+																	</div>
+																</div>
+																<div class="col-lg-4">
+																	<div class="form-group">
+																		<label>Tipo de Muestra</label>
+																			<select class="form-control" ng-model="tipom">
+																				<option>SUELO</option>
+																				<option>AGUA</option>
+																				<option>FOLIAR</option>
+																				<option>MULTIRRESIDUOS</option>
+																			</select>
+																	</div>
+																</div>
+																<div class="col-lg-12">
+																<div class="panel panel-default">
+																  <div class="panel-heading">
+																	<h3 class="panel-title">Opciones</h3>
+																  </div>
+																  <div class="panel-body">
+																	
+																  </div>
+																</div>
+																</div>
+																<div class="col-lg-12">
+																	<div class="form-group">
+																		<label>Descripción</label>
+																		<textarea class="form-control" rows="3" ng-model="desm"></textarea>
+																	</div>
+																</div>
+																<div class="col-lg-5">
+																	<div class="form-group">
+																		<label>Laboratorio</label>
+																		<input class="form-control" placeholder="Ej. Laboratorio1" ng-model="laboratorio">
+																	</div>
+																</div>
+																<div class="col-lg-3">
+																	<div class="form-group">
+																		<label>Inf. laboratorio</label>
+																		<input class="form-control" placeholder="Ej. 1234" ng-model="informeLaboratorio">
+																	</div>
+																</div>
+																<div class="col-md-4">
+																	<div class="form-group">
+																	<label>Fecha de emisión</label>
+																		<input id="fechaemision" type="date" class="form-control" ng-model="fechaemision" />
+																	</div>
+																</div>
+																<div class="col-lg-6">
+																	<div class="form-group">
+																		<label>Observaciones</label>
+																		<textarea class="form-control" rows="3" ng-model ="obsm"></textarea>
+																	</div>
+																</div>
+																<div class="col-lg-6">
+																	<div class="form-group">
+																		<label>Acciones a realizar</label>
+																		<textarea class="form-control" rows="3" ng-model="accm"></textarea>
+																	</div>
+																</div>
+																
+															</div>
+														</form>
+													</div>	
+												</div>
+											  </div>
+											  <div class="modal-footer">
+												<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+												{% if administrador %}
+												<button type="button" class="btn btn-primary" ng-click="guardarAnalisis('{{explotacion.id}}',AnalisisTecnico,'administrador')">Guardar</button>
+												{% else %}
+												<button type="button" class="btn btn-primary" ng-click="guardarAnalisis('{{explotacion.id}}','{{tecnico.id}}','tecnico')">Guardar</button>
+												{% endif %}
+											  </div>
+											</div>
+										  </div>
+										</div>
+									</div>
+							
+								</div>
+                        <!-- /.panel-heading -->
+							<div class="panel-body" style="max-height: 308px ;overflow-y: scroll;">
+								<div class="table-responsive">
+									
+									<table class="table table-striped table-bordered table-hover" >
+										
+										<thead>
+											<tr>
+												<th width="30"></th>
+												<th>Fecha muestra</th>
+												<th>UHC</th>
+												<th>Tipo de análisis</th>
+												<th>Observaciones</th>
+											</tr>
+										</thead>
+										<tbody>
+											{%for analisis in analisisUHC %}
+											<tr> <!--ng-repeat="anls in analisis| filter: {idUHC: uhcSeleccion|| ''}| orderBy :'-fecha_muestra'">-->
+												{% if administrador %}
+												<td><a href="/administrador/analisis/{{analisis.id}}"><i class="fa fa-info-circle text-info"></i></a></td>
+												{% else %}
+												<td><a href="/tecnico/analisis/{{analisis.id}}"><i class="fa fa-info-circle text-info"></i></a></td>
+												{% endif %}
+												<td>{{analisis.fecha_muestra}}</td>
+												<td>{{analisis.idUHC.nombre}}</td>
+												<td>{{analisis.tipo}}</td>
+												<td>{{analisis.observaciones}}</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+								
+								<!-- /.table-responsive -->
+							</div>
+						
+                        <!-- /.panel-body -->
+                    </div>
+						</div>
+
+                    <!-- /.panel -->
+                </div>
+				</div>
+	</div>
+	
+	
+	</div>
+	
+</div>
+<div class="panel" ng-show="panel.isSelected(2)">
+	<br></br>
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Técnicos asignados a la explotación</strong>
+					<div class="subBoton"><a href="#"  data-toggle="modal" data-target="#AsignarUsuarios{{explotacion.id}}"><i class="fa fa-plus fa-fw"></i><strong>Asignar Técnico</strong></a>
+						<div class="modal fade" id="AsignarUsuarios{{explotacion.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-dialog ">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+										<h4 class="modal-title text-center" id="myModalLabel">Asignar técnicos a {{explotacion.Razon_Social}}</h4>
+									</div>
+									<div  ng-show ="muestra" class="modal-body" style="max-height: 420px ;overflow-y: scroll;">
+										<div class="panel-body">
+											<div class="row">
+												<div class="table-responsive">
+													<table class="table table-striped table-bordered table-hover">
+														
+														<thead>
+															<tr>
+																<th width="30"><input type="checkbox" value="all" aria-label="..." ng-model="allCheck"></th>
+																<th>Técnico</th>
+																<th>NIF</th>
+															</tr>
+														</thead>
+														<tbody>		
+															<tr ng-repeat="tecnico in tecnicos">
+																<td><input type="checkbox" id="blankCheckbox[[tecnico.id]]" class="blankCheckbox" value="[[tecnico.id]]" ng-model="allCheck"></td>
+																<td>[[tecnico.Nombre]] [[tecnico.Apellido1]] [[tecnico.Apellido2]]</td>
+																<td>[[tecnico.NIF]]</td>
+																
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div ng-hide ="muestra" class="modal-body">
+										<div class="panel-body">
+											<div class="row">
+												<p class="text-center"><strong>No existen más técnicos para asignar</strong></p>
+											</div>
+										</div>
+									</div>
+									
+									<div class="modal-footer">
+										<button type="button" class="btn btn-success" ng-click="guardarUsuarios('{{explotacion.id}}')">Guardar</button>				
+									</div>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+				</div>
+				<!-- /.panel-heading -->
+				<div class="panel-body">
+					<div class="table-responsive">
+						
+						<table class="table table-striped table-bordered table-hover">
+							
+							<thead>
+								<tr>
+									<th>Nombre y apellidos</th>
+									<th>NIF</th>
+									<th>Localidad</th>
+									<th>Contacto</th>
+									<th>Fecha de ingreso</th>
+									<th></th>
+									
+								</tr>
+							</thead>
+							<tbody>		
+								<tr ng-repeat="usuario in usuarios">
+									<td>[[usuario.usNombre]] [[usuario.usApellido1]] [[usuario.usApellido2]]</td>
+									<td>[[usuario.usNif]]</td>
+									<td>[[usuario.usMunicipio]] ([[usuario.usProvincia]])</td>
+									<td>[[usuario.usTel1]]</td>
+									<td>[[formateaFecha(usuario.usF_ing)]]</td>
+									<td><a href="#" data-toggle="modal" data-target="#designarUsuario[[usuario.id]]"><i class="fa fa-trash-o text-danger"></i></a>
+													<div class="modal fade" id="designarUsuario[[usuario.id]]" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+														<div class="modal-dialog modal-sm">
+															<div class="modal-content">
+															    <div class="modal-header">
+																	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+																	<h4 class="modal-title" id="myModalLabel">¿Desea designar a este usuario de la explotación?</h4>
+																</div>
+																
+																<div class="modal-body">
+																	<div class="panel-body">
+																		<div class="row">
+																			<div class="col-lg-12">
+																				<p class="text-center"><strong>[[usuario.usNombre]] [[usuario.usApellido1]] [[usuario.usApellido2]]</strong></p>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+																
+																<div class="modal-footer">
+																	<div class="col-lg-12">
+																		<button type="button" class="btn btn-success pull-left" ng-click="designarUsuario(usuario.id,usuario.idUsuario)">Si</button>
+																		<button type="button" class="btn btn-danger pull-right" ng-click="cerrar('#designarUsuario',usuario.id)">No</button>
+																		<br></br>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</td>	
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- /.table-responsive -->
+				</div>
+				<!-- /.panel-body -->
+			</div>
+			<!-- /.panel -->
+		</div>
+		<!-- /.col-lg-12 -->
+	</div>
+</div>
+
+<div class="panel" ng-show="panel.isSelected(3)">
+	<br></br>
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-warning">
+				<div class="panel-heading">
+					<strong>Maquinaria asignada a la explotación</strong>
+					<div class="subBoton"><a href="#"  data-toggle="modal" data-target="#AsignarMaquina{{explotacion.id}}"><i class="fa fa-plus fa-fw"></i><strong>Asignar Máquina</strong></a>
+						<div class="modal fade" id="AsignarMaquina{{explotacion.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-dialog ">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+										<h4 class="modal-title text-center" id="myModalLabel">Asignar Máquinas a {{explotacion.Razon_Social}}</h4>
+									</div>
+									<div  ng-show ="muestra2" class="modal-body" style="max-height: 420px ;overflow-y: scroll;">
+										<div class="panel-body">
+											<div class="row">
+												<div class="table-responsive">
+													<table class="table table-striped table-bordered table-hover">
+														
+														<thead>
+															<tr>
+																<th width="30"><input type="checkbox" value="all" aria-label="..." ng-model="allCheck2"></th>
+																<th>Máquina</th>
+																<th>Nº Roma</th>
+															</tr>
+														</thead>
+														<tbody>		
+															<tr ng-repeat="maquina in maquinas| filter: {activo: 'SI'}">
+																<td><input type="checkbox" id="blankCheckbox2[[maquina.id]]" class="blankCheckbox2" value="[[maquina.id]]" ng-model="allCheck2"></td>
+																<td>[[maquina.TipoMaquina]] - [[maquina.MarcaModelo]]</td>
+																<td>[[maquina.numero_roma]]</td>
+																
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div ng-hide ="muestra2" class="modal-body">
+										<div class="panel-body">
+											<div class="row">
+												<p class="text-center"><strong>No existen más máquinas para asignar</strong></p>
+											</div>
+										</div>
+									</div>
+									
+									<div class="modal-footer">
+										<button type="button" class="btn btn-success" ng-click="guardarMaquinas('{{explotacion.id}}')">Guardar</button>				
+									</div>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+				</div>
+				<!-- /.panel-heading -->
+				<div class="panel-body">
+					<div class="table-responsive">
+						
+						<table class="table table-striped table-bordered table-hover">
+							
+							<thead>
+								<tr>
+									<th>Tipo de Máquina</th>
+									<th>Marca y Modelo</th>
+									<th>Numero de ROMA</th>
+									<th>Fecha de Adquisición</th>
+									<th>Fecha de Revisión</th>
+									<th></th>
+									
+								</tr>
+							</thead>
+							<tbody>		
+								<tr ng-repeat="maq in maquinasusadas">
+									<td>[[maq.maq_Tipo]]</td>
+									<td>[[maq.maq_marca]]</td>
+									<td>[[maq.maq_roma]]</td>
+									<td>[[formateaFecha(maq.maq_f_ad)]]</td>
+									<td>[[formateaFecha(maq.maq_f_rev)]]</td>
+									<td><a href="#" data-toggle="modal" data-target="#designarMaquina[[maq.idMaquina]]"><i class="fa fa-trash-o text-danger"></i></a>
+													<div class="modal fade" id="designarMaquina[[maq.idMaquina]]" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+														<div class="modal-dialog modal-sm">
+															<div class="modal-content">
+															    <div class="modal-header">
+																	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+																	<h4 class="modal-title" id="myModalLabel">¿Desea designar esta máquina de la explotación?</h4>
+																</div>
+																
+																<div class="modal-body">
+																	<div class="panel-body">
+																		<div class="row">
+																			<div class="col-lg-12">
+																				<p class="text-center"><strong>[[maq.maq_Tipo]] - [[maq.maq_marca]] - [[maq.maq_roma]]</strong></p>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+																
+																<div class="modal-footer">
+																	<div class="col-lg-12">
+																		<button type="button" class="btn btn-success pull-left" ng-click="designarMaquina(maq.idMaquina,maq.id)">Si</button>
+																		<button type="button" class="btn btn-danger pull-right" ng-click="cerrar('#designarMaquina',maq.idMaquina)">No</button>
+																		<br></br>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</td>	
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- /.table-responsive -->
+				</div>
+				<!-- /.panel-body -->
+			</div>
+			<!-- /.panel -->
+		</div>
+		<!-- /.col-lg-12 -->
+	</div>
+</div>
+<div class="panel" ng-show="panel.isSelected(4)">
+	<br></br>
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-warning">
+				<div class="panel-heading">
+					<strong>Aplicadores</strong>
+					<div class="subBoton"><a href="#" data-toggle="modal" data-target="#nuevoAplicador"><i class="fa fa-plus fa-fw"></i><strong>Nuevo Aplicador</strong></a>
+					<div class="modal fade" id="nuevoAplicador" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+						<div class="modal-dialog modal-lg">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+									<h4 class="modal-title" id="myModalLabel">Nuevo aplicador</h4>
+								</div>
+								
+								<div class="modal-body">
+									<div class="panel-body">
+										<div class="row">
+											<form id="formAplicadores"role="form" action="." method="POST">{% csrf_token %}
+											<div class="col-lg-4">
+												<div class="form-group">
+													<label>Tipo de aplicador*</label>
+													<select class="form-control" name="tipoAplicador" ng-model="tipoAplicador" required>
+														<option value="1" selected="true">Persona física</option>
+														<option value="2">Empresa aplicadora</option>
+													</select>
+												</div>
+											</div>
+											
+											<div class="col-lg-8" ng-show="tipoAplicador == '2'">
+												<div class="form-group">
+													<label>Razón Social*</label>
+													<input class="form-control" type="text" name="razon_social" ng-model="razon_social" />
+												</div>
+											</div>
+											
+											<div class="col-lg-12">
+												<div class="form-group">
+													
+												</div>
+											</div>
+										
+											<div class="col-lg-4">
+												<div class="form-group">
+													<label>Nombre*</label>
+													<input class="form-control" type="text" name="nombre" ng-model="nombre" />
+												</div>
+											</div>
+											<div class="col-lg-4">
+												<div class="form-group">
+													<label>Primer apellido</label>
+													<input class="form-control" type="text" name="apellido1" ng-model="apellido1" />
+												</div>
+											</div>
+											<div class="col-lg-4">
+												<div class="form-group">
+													<label>Segundo apellido</label>
+													<input class="form-control" type="text" name="apellido2" ng-model="apellido2" />
+												</div>
+											</div>
+											
+											<div class="col-lg-3">
+												<div class="form-group">
+													<label>NIF*</label>
+													<input class="form-control" type="text" name="dni" ng-model="dni" />
+												</div>
+											</div>
+											
+											<div class="col-lg-4">
+												<div class="form-group">
+													<label>Teléfono*</label>
+													<input class="form-control" type="text" name="Telefono" ng-model="Telefono" />
+												</div>
+											</div>
+											
+											<div class="col-lg-5">
+												<div class="form-group">
+													<label>Fax</label>
+													<input class="form-control" type="text" name="Fax" ng-model="Fax" />
+												</div>
+											</div>
+											
+											<div class="col-lg-6">
+												<div class="form-group">
+													<label>E-mail</label>
+													<input type="email" name="email" class="form-control" ng-model="email">
+												</div>
+											</div>
+											
+											
+											
+											
+											<div class="col-lg-3">
+												<div class="form-group">
+													<label>Fecha de validez*</label>
+													<input class="form-control" type="date" name="fecha_validez" ng-model="fecha_validez">
+												</div>
+											</div>
+											
+											<div class="col-lg-3">
+												<div class="form-group">
+													<label>Fecha de expedición*</label>
+													<input class="form-control" type="date" name="fecha_expedicion" ng-model="fecha_expedicion">
+												</div>
+											</div>	
+
+											</form>
+											
+										</div>
+									</div>
+								</div>
+								
+								<div class="modal-footer">
+									<div class="col-lg-12">
+										<button type="button" class="btn btn-info pull-right" ng-click="creaAplicador('{{explotacion.id}}')"><i class="fa fa-save"></i> Guardar</button>
+										<br></br>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					
+					</div>
+				</div>
+				<!-- /.panel-heading -->
+				<div class="panel-body">
+					<div class="table-responsive">
+						
+						<table class="table table-striped table-bordered table-hover">
+							
+							<thead>
+								<tr>
+									<th>Nombre/Razón Social</th>
+									<th>NIF</th>
+									<th>Teléfono</th>
+									<th>email</th>
+									<th width="30"></th>
+							
+								</tr>
+							</thead>
+							<tbody>
+								
+								<tr ng-repeat="aplicador in aplicadores">
+									<td>[[aplicador.nombre]] [[aplicador.apellido1]] [[aplicador.apellido2]]</td>
+									<td>[[aplicador.dni]]</td>
+									<td>[[aplicador.Telefono]]</td>
+									<td>[[aplicador.email]]</td>
+									<td><a href="#" data-toggle="modal" data-target="#eliminarAplicador[[aplicador.id]]"><i class="fa fa-trash-o text-danger"></i></a>
+													<div class="modal fade" id="eliminarAplicador[[aplicador.id]]" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+														<div class="modal-dialog modal-sm">
+															<div class="modal-content">
+															    <div class="modal-header">
+																	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+																	<h4 class="modal-title" id="myModalLabel">¿Desea eliminar este aplicador de la explotación?</h4>
+																</div>
+																
+																<div class="modal-body">
+																	<div class="panel-body">
+																		<div class="row">
+																			<div class="col-lg-12">
+																				<p class="text-center"><strong>[[aplicador.nombre]] [[aplicador.apellido1]] [[aplicador.apellido2]]</strong></p>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+																
+																<div class="modal-footer">
+																	<div class="col-lg-12">
+																		<button type="button" class="btn btn-success pull-left" ng-click="eliminarAplicador(aplicador.id,'{{explotacion.id}}')">Si</button>
+																		<button type="button" class="btn btn-danger pull-right" ng-click="cerrar('#eliminarAplicador',aplicador.id)">No</button>
+																		<br></br>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</td>	
+		
+								</tr>  
+							</tbody>
+						</table>
+					</div>
+					<!-- /.table-responsive -->
+				</div>
+				<!-- /.panel-body -->
+			</div>
+			<!-- /.panel -->
+		</div>
+		<!-- /.col-lg-12 -->
+	</div>
+</div>
+<div class="panel" ng-show="panel.isSelected(5)">
+	</br>
+	<div class="row" ng-controller="PanelController as panel2">
+	<ul class="nav nav-pills nav-justified">
+		<li role="presentation" ng-class="{ active:panel2.isSelected(1)}"><a href ng-click="panel2.selectTab(1)">Temperatura</a></li>
+		<li role="presentation" ng-class="{ active:panel2.isSelected(2)}"><a href ng-click="panel2.selectTab(2)">Humedad</a></li>
+		<li role="presentation" ng-class="{ active:panel2.isSelected(3)}"><a href ng-click="panel2.selectTab(3)">Precipitación</a></li>
+		
+	</ul>
+	</br>
+	<div class="panel panel-info">
+		<div class="panel-heading">
+			<strong>Datos Climáricos</strong>
+			<div class="subBoton"><a href="#" data-toggle="modal" data-target="#nuevoDatoClimático"><i class="fa fa-plus fa-fw"></i><strong>Nuevo dato climático</strong></a>
+			<div class="modal fade" id="nuevoDatoClimático" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title" id="myModalLabel">Nuevo dato climático</h4>
+						</div>
+						
+						<div class="modal-body">
+							<div class="panel-body">
+								<div class="row">
+
+									<form id="formDatoClimatico"role="form" action="." method="POST">
+										</br>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label>Fecha*</label>
+												<input id="fechaDato" class="form-control" type="date" name="fecha" ng-model="fechaDato">
+											</div>
+										</div>
+										<div class="col-lg-6">
+											<div class="form-group">
+												<label>Estación*</label>
+												<input id="EstacionClimatica" class="form-control" type="text" name="EstacionClimatica" ng-model="EstacionClimatica" />
+											</div>
+										</div>
+										<div class="col-lg-12">
+											<div class="form-group">
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label>Temperatura*</label>
+												<input id="Temperatura" class="form-control" type="text" name="Temperatura" ng-model="Temperatura" />
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label>TempMax*</label>
+												<input id="TempMax" class="form-control" type="text" name="TempMax" ng-model="TempMax" />
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label>TempMin*</label>
+												<input id="TempMin" class="form-control" type="text" name="TempMin" ng-model="TempMin" />
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label>TempMed*</label>
+												<input id="TempMed" class="form-control" type="text" name="TempMed" ng-model="TempMed" />
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label>Humedad*</label>
+												<input id="Humedad" class="form-control" type="number" min="0" max="100" name="Humedad" ng-model="Humedad" />
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label>HumMax*</label>
+												<input id="HumMax" class="form-control" type="number" min="0" max="100" name="HumMax" ng-model="HumMax" />
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label>HumMin*</label>
+												<input id="HumMin" class="form-control" type="number" min="0" max="100" name="HumMin" ng-model="HumMin" />
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label>HumMed*</label>
+												<input id="HumMed" class="form-control" type="number" min="0" max="100" name="HumMed" ng-model="HumMed" />
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label>Precipitacion*</label>
+												<input id="Precipitacion" class="form-control" type="text" name="Precipitacion" ng-model="Precipitacion" />
+											</div>
+										</div>
+										
+										<div class="col-lg-12">
+											<button type="button" class="btn btn-info pull-right" ng-click="crearDatoClimatico('{{explotacion.id}}')"><i class="fa fa-save"></i> Guardar</button>
+											<br></br>
+										</div>
+										
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+	<div class="panel-body">
+		<div class="panel" ng-show="panel2.isSelected(1)">
+			<div class="table-responsive">
+				<table class="table table-striped table-bordered table-hover">
+					<thead>
+						<tr>
+							<th>Fecha</th>
+							<th>Estación</th>
+							<th>Temperatura</th>
+							<th>Temp. Max</th>
+							<th>Temp. Min</th>
+							<th>Temp. Med</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for dato in datosClimaticos %}
+						<tr>
+							<td>{{dato.fecha}}</td>
+							<td>{{dato.EstacionClimatica}}</td>
+							<td>{{dato.Temperatura}} ºC</td>
+							<td>{{dato.TempMax}} ºC</td>
+							<td>{{dato.TempMin}} ºC</td>
+							<td>{{dato.TempMed}} ºC</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="panel" ng-show="panel2.isSelected(2)">
+			<div class="table-responsive">
+				<table class="table table-striped table-bordered table-hover">
+					<thead>
+						<tr>
+							<th>Fecha</th>
+							<th>Estación</th>
+							<th>Humedad</th>
+							<th>Hum. Max</th>
+							<th>Hum. Min</th>
+							<th>Hum. Med</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for dato in datosClimaticos %}
+							<tr>
+								<td>{{dato.fecha}}</td>
+								<td>{{dato.EstacionClimatica}}</td>
+								<td>{{dato.Humedad}} %</td>
+								<td>{{dato.HumMax}} %</td>
+								<td>{{dato.HumMin}} %</td>
+								<td>{{dato.HumMed}} %</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="panel" ng-show="panel2.isSelected(3)">
+
+				<div class="table-responsive text-center">
+					<table class="table table-striped table-bordered table-hover">
+						<thead>
+							<tr>
+								<th width="100">Fecha</th>
+								<th class="text-center">Estación</th>
+								<th width="120">Precipitación</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for dato in datosClimaticos %}
+								<tr>
+									<td>{{dato.fecha}}</td>
+									<td>{{dato.EstacionClimatica}}</td>
+									<td>{{dato.Precipitacion}} mm</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+
+		</div>
+	</div>
+	</div>
+</div>
+</div>
+
+</div>
+<div class="panel panel-success">
+ <div class="panel-heading">
+                            <strong>Listado de Parcelas</strong>
+							<div class="pull-right">
+								<a href="#" data-toggle="modal" data-target="#nuevaParcela" ><i class="fa fa-plus fa-fw"></i><strong> Nueva Parcela</strong></a>
+								<div class="modal fade" id="nuevaParcela" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+								  <div class="modal-dialog">
+									<div class="modal-content">
+									  <div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+										<h4 class="modal-title" id="myModalLabel">Nueva Parcela</h4>
+									  </div>
+									  <div class="modal-body">
+										<div class="panel-body">
+											<div class="row">
+												<form name="ParcelaForm" role="form" action="." method="POST">{% csrf_token %}
+												
+
+
+													
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>UHC´s</label>
+															
+															<select id="uhcSeleccionado"class="form-control" required>
+															{% for uhc in uhcsExplotacion%}
+																<option  value="{{uhc.id}}">{{uhc.nombre}}</option>
+																{% endfor %}
+															</select>
+															
+														</div>
+													</div>
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>Parcelas</label>
+															
+															<select id="parcelaSeleccionado"class="form-control" required>
+															{% for parcela in parcelastotales%}
+																<option  value="{{parcela.id}}">{{parcela.nombre}}-{{parcela.provincia.CodProvincia}}-{{parcela.municipio.CodMunicipio}}-{{parcela.poligono}}-{{parcela.parcela}}-{{parcela.recinto}}</option>
+																{% endfor %}
+															</select>
+															
+														</div>
+													</div>
+													
+													
+												
+												</form>
+											</div>	
+										</div>
+									  </div>
+									  <div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+										<button type="button" class="btn btn-primary" ng-click="guardarParcela({{explotacion.id}})">Guardar</button>
+									  </div>
+									</div>
+								  </div>
+								</div>
+							</div>
+							
+                        </div>
+						<div class="panel-body" style="max-height: 308px ;overflow-y: scroll;">
+					<div class="table-responsive">
+						
+						<table class="table table-striped table-bordered table-hover">
+							
+							<thead>
+								<tr>
+									<th>Parcela</th>
+                                    <th>UHC</th>
+                                    <th>Código</th>
+                                    <th>Superficie</th>
+								    <th>Descripción</th>
+								    <th>Cultivo</th>
+									
+								</tr>
+							</thead>
+							<tbody>
+								
+								<tr ng-repeat="parcela in parcelas | filter: {idUHC: uhcSeleccion}| orderBy:'uhc_nombre'">
+									<td><a href="#" data-toggle="modal" data-target="#[[parcela.id]]" >[[parcela.nombre]]</a>
+										<div class="modal fade" id="[[parcela.id]]" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+										  <div class="modal-dialog ">
+											<div class="modal-content">
+											  <div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+												<h4 class="modal-title" id="myModalLabel">[[parcela.nombre]]</h4>
+											  </div>
+											  <div class="modal-body">
+												<div class="panel-body">
+													<div class="row">
+														
+														<div class="col-lg-3">
+															<div class="form-group">
+																<label>Explotación:</label>
+																<div>{{explotacion.Razon_Social}}</div>
+															</div>
+														</div>
+														<div class="col-lg-3">
+															<div class="form-group">
+																<label>UHC:</label>
+																<div>[[parcela.uhc_nombre]]</div>
+															</div>
+														</div>
+														
+														<div class="col-lg-3">
+															<label>SR:</label> 
+															<div>[[parcela.sr]]</div>
+															<!--{{parcela.sr}} -->
+														</div>
+														
+														
+														<div class="col-lg-12">
+															</br>
+														</div>
+														
+														<div class="col-lg-4">
+															<label>Provincia:</label>
+															<div>[[parcela.parcela_Prov]] - [[parcela.parcela_codProv]]</div>
+														</div>
+														<div class="col-lg-8">
+															<label>Municipio:</label>
+															<div>[[parcela.parcela_Mun]] - [[parcela.parcela_codMun]]</div>
+														</div>
+														
+														<div class="col-lg-12">
+															</br>
+														</div>
+									
+														
+															
+														<div class="col-lg-2">
+															<label>Polígono:</label>
+															<div>[[parcela.poligono]]</div>
+														</div>
+														<div class="col-lg-2">
+															<label>Parcela:</label>
+															<div>[[parcela.parcela]]</div>
+														</div>
+														<div class="col-lg-2">
+															<label>Recinto:</label>
+															<div>[[parcela.recinto]]</div>
+														</div>
+														<div class="col-lg-6">
+															<label>Superficie(ha):</label>
+															<div>[[parcela.superficie_hectareas]] ha</div>
+														</div>
+															
+														
+														<div class="col-lg-12">
+															</br>
+														</div>
+														
+														<div class="col-lg-12">
+															<label>Descripción: </label>
+															<div>[[parcela.descripcion]]</div>
+														</div>
+														
+														
+												</div>
+											  </div>
+											  <div class="modal-footer">
+												<button type="button" class="btn btn-info" data-toggle="modal" data-target="#editaParcela[[parcela.id]]" ng-click="editar(parcela.id)">Editar</button>
+												
+
+												<div class="pull-left">
+													<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Eliminar[[parcela.id]]">Eliminar</button>
+													<div class="modal fade" id="Eliminar[[parcela.id]]" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+													  <div class="modal-dialog modal-sm">
+														<div class="modal-content">
+															
+															<div class="modal-body">
+																<h4 class="col-lg-12">
+																	¡ATENCIÓN!
+																</h4>
+																<div>
+																	¿Deseas eliminar esta parcela?
+																</div>
+															</div>
+															<div class="modal-footer">
+																<button type="button" class="btn btn-danger" ng-click="cerrarParcela(parcela.id)">No</button>
+																<button type="button" class="btn btn-success" ng-click="eliminar(parcela.id,'parcela')">Si</button>
+															</div>
+														  
+														</div>
+													  </div>
+													</div>
+												</div>
+												<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+											  </div>
+											</div>
+										  </div>
+										</div>
+										<div class="modal fade" id="editaParcela[[parcela.id]]" ng-controller="EditaParcela" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+										  <div class="modal-dialog">
+											<div class="modal-content">
+											  <div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+												<h4 class="modal-title" id="myModalLabel">Editar [[parcela.nombre]]</h4>
+											  </div>
+											  <div class="modal-body">
+												<div class="panel-body">
+													<div class="row">
+														<form id="Parcela2Form" name="Parcela2Form" role="form" action="." method="POST">
+														
+															<div class="col-lg-3">
+																<div class="form-group">
+																	<label>UHC</label>
+																		<select id="ParcelaUHC2" class="form-control" ng-model="ParcelaUHC2">
+																		{% if uhcsExplotacion %}
+																			{% for uhcr in uhcsExplotacion %}
+																				<option  value="{{uhcr.id}}">{{uhcr.nombre}}</option>
+																			{% endfor %}
+																		{% endif %}
+																		</select>
+																</div>
+															</div>
+															<div class="col-lg-6">
+																<div class="form-group">
+																	<label>Provincia</label>
+																	<select class="form-control"ng-model="provinciaSeleccionada" required>
+																		<!--{% for provincia in provincias %}
+																				<option  value="{{provincia.id}}">{{provincia.CodProvincia}} - {{provincia.Provincia}}</option>
+																		{% endfor %}-->
+																		<option ng-repeat="provincia in provincias  " value="[[provincia.id]]">[[provincia.Provincia]]-[[provincia.CodProvincia]]</option>
+																	</select>
+																</div>
+															</div>
+															
+															<div class="col-lg-6">
+																<div class="form-group">
+																	<label>Municipio</label>
+																	<select id="munSeleccionado" class="form-control"  required>
+																		<option value ="[[municipioParcela.id]]">[[municipioParcela.Municipio]] - [[municipioParcela.CodMunicipio]] </option>
+																		<option ng-repeat="municipio in municipios  | filter: {idProvincia: provinciaSeleccionada} |orderBy: 'Municipio'" value="[[municipio.id]]">[[municipio.Municipio]]-[[municipio.CodMunicipio]]</option>
+																	</select>
+																	
+																</div>
+															</div>
+															<div class="col-lg-9">
+																<div class="form-group">
+																	<label>Descriptor de parcela</label>
+																	<input class="form-control" placeholder="Ej. Parcela1" ng-model="nombreParcela2">
+																</div>
+															</div>
+												
+															<div class="col-lg-2">
+																<div class="form-group">
+																	<label>Polígono</label>
+																	<input id="poligono2" class="form-control" placeholder="Ej. 001" ng-model="poligono2" required>
+																</div>
+															</div>
+															<div class="col-lg-3">
+																<div class="form-group">
+																	<label>Parcela</label>
+																	<input class="form-control" placeholder="Ej. 00003" ng-model="parcela2" required>
+																</div>
+															</div>
+															<div class="col-lg-3">
+																<div class="form-group">
+																	<label>Recinto</label>
+																	<input class="form-control" placeholder="Ej. 00002" ng-model="recinto2" required>
+																</div>
+															</div>
+															<div class="col-lg-4">
+																<div class="form-group">
+																	<label>Superficie (Hectáreas)</label>
+																	<input class="form-control" placeholder="Ej. 2.5434112" ng-model="superficie2">
+																</div>
+															</div>
+															<div class="col-lg-6">
+																<div class="form-group">
+																	<label>Secano <input type="radio" ng-model="sr2" value="SECANO"></label>
+																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																	<label>Regadio <input type="radio" ng-model="sr2" value="REGADIO"></label>
+																</div>
+															</div>
+															<div class="col-lg-6">
+																<div class="form-group">
+																	<label>Descripción</label>
+																	<textarea class="form-control" rows="3" ng-model="descripcion2"></textarea>
+																</div>
+															</div>
+															
+														
+														</form>
+													</div>	
+												</div>
+											  </div>
+											  <div class="modal-footer">
+												<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+												<button type="button" class="btn btn-primary" ng-click="guardarParcelaExplotacion([[parcela.id]],'{{explotacion.id}}',[[parcela.provincia]],[[parcela.municipio]],'{{idCultivoExp}}')">Guardar</button>
+											  </div>
+											</div>
+										  </div>
+										</div>
+									
+									</td>
+									<td>[[parcela.uhc_nombre]]</td>
+									<td>[[parcela.parcela_codProv]]-[[parcela.parcela_codMun]]-[[parcela.poligono]]-[[parcela.parcela]]-[[parcela.recinto]]</td>
+									<td>[[parcela.superficie_hectareas]]</td>
+									<td>[[parcela.descripcion]]</td>
+									<td>[[parcela.nombreCultivo]]</td>
+									<td ><a href=""  ng-click = "borrarParcela([[parcela.id]])" ><i class="fa fa-trash-o text-danger" ></i></a></td>
+	
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- /.table-responsive -->
+				</div>
+</div>	
+		
+</div>	
+		
+</section>
+{% endblock %}
+
+{% block footer %}<div id="footer" align="center"><a><img id = "imgLogo"  width="1276" height="53" src ="{% static 'css/images/footer.jpg' %}" ></a></div>{% endblock %}
+ 
+

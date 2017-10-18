@@ -1,0 +1,42 @@
+{% extends "citagro/Administrador/Administrador.html" %}
+
+{% block page-header %}Explotaciones{% endblock %}
+{% block content %}
+
+	
+	{% if lista_explotaciones %}
+				{% for explotacion in lista_explotaciones %}
+				
+				<div class="col-lg-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            {{explotacion.Razon_Social}}
+                        </div>
+                        <div class="panel-body">
+                            <p>{{explotacion.Domicilio}}</p>
+							<p>{{explotacion.Localidad}} ({{explotacion.Provincia}})</p>
+                        </div>
+                        <div class="panel-footer">
+                            <a href="{% url 'citagro:explotacion' explotacion.id %}">Ver más</a>
+                        </div>
+                    </div>
+				</div>
+				{% endfor %}
+	{% endif %}
+
+		
+{% endblock %}
+	
+
+
+
+
+
+
+
+
+
+
+
+		
+        

@@ -1,0 +1,19 @@
+.metadata{
+	margin-left:25px;
+}
+.subBoton{
+	float: right;
+}
+.eliminar{
+	float: right;
+	color: red;
+}
+.producto{
+	color:black;
+}
+#prodct{
+	color: white;
+}
+#myModalLabel{
+	color:black;
+}

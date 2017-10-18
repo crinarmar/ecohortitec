@@ -1,0 +1,31 @@
+{% extends "citagro/Administrador/Explotacion.html" %}
+{% load i18n %}
+
+{% block page-header %}{{explotacion.Razon_Social}} - Nuevo dato climático{% endblock %}
+
+{% block content %}
+	<ul class="nav nav-tabs">
+	  <li role="presentation"><a href="{% url 'citagro:explotacion' explotacion.id %}">Parcelas</a></li>
+	  <li role="presentation"><a href="{% url 'citagro:tecnicosExplotacion' explotacion.id %}">Técnicos Asignados</a></li>
+	  <li role="presentation"><a href="{% url 'citagro:maquinas' explotacion.id %}">Maquinaria</a></li>
+	  <li role="presentation"><a href="#">Aplicadores</a></li>
+	  <li role="presentation" class = "active"><a href="{% url 'citagro:datosClimaticos' explotacion.id %}">Datos Climáticos</a></li>
+	</ul>
+
+<br></br>
+
+
+{% block subcontent %}
+<form action="." method="POST">{% csrf_token %}
+			<table>
+				{{ form.as_table }}
+			</table>
+			<p>{{error}}</p>
+			<p><input type="submit" value="Submit"></p>
+		</form>
+{% endblock %}
+	
+{% endblock %}
+ 
+ 
+

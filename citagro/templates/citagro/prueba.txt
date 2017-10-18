@@ -1,0 +1,47 @@
+{% extends "citagro/Administrador/Administrador.html" %}
+
+{% block page-header %}Técnicos{% endblock %}
+
+{% block content %}
+			
+			<div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Listado de técnicos
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div class="dataTable_wrapper">
+							
+								<table class="table table-striped table-bordered table-hover" id="dataTables-example">
+								
+                                    <thead>
+                                        <tr role="row"><th aria-label="Nombre y apellidos: activate to sort column descending" aria-sort="ascending" style="width: 177px;" colspan="1" rowspan="1" aria-controls="dataTables-example" tabindex="0" class="sorting_asc">Nombre y apellidos</th><th aria-label="NIF: activate to sort column ascending" style="width: 199px;" colspan="1" rowspan="1" aria-controls="dataTables-example" tabindex="0" class="sorting">NIF</th><th aria-label="Localidad: activate to sort column ascending" style="width: 180px;" colspan="1" rowspan="1" aria-controls="dataTables-example" tabindex="0" class="sorting">Localidad</th><th aria-label="Contacto: activate to sort column ascending" style="width: 153px;" colspan="1" rowspan="1" aria-controls="dataTables-example" tabindex="0" class="sorting">Contacto</th>
+                                    </thead>
+                                   
+                                    <tbody>
+										{% if lista_tecnicos %}
+											{% for tecnico in lista_tecnicos %}
+											<tr>
+												<td>{{tecnico.Nombre}} {{tecnico.Apellido1}} {{tecnico.Apellido2}}</td>
+												<td>{{tecnico.NIF}}</td>
+												<td>{{tecnico.Municipio}} ({{tecnico.Provincia}})</td>
+												<td>{{tecnico.Telefono1}}</td>
+											</tr>
+											{% endfor %}
+										{% endif %}
+                                        
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.table-responsive -->
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+{% endblock %}

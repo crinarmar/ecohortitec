@@ -1,0 +1,121 @@
+{% extends "citagro/Administrador/Administrador.html" %}
+
+{% block page-header %}Nueva Explotación{% endblock %}
+
+{% block content %}
+
+ <div class="row" ng-controller="MunicipiosController" ng-init="iniciaMunicipios()">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Nueva Explotación</strong>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <form role="form" action="." method="POST">{% csrf_token %}
+			             <div class="col-lg-8">
+							<div class="form-group">
+								<label>Razón Social*</label>
+								<input class="form-control" type="text" name="Razon_Social" ng-model="Razon_Social" />
+							</div>
+						</div>
+						
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>CIF/NIF*</label>
+								<input class="form-control" type="text" name="cif_nif" ng-model="cif_nif">
+							</div>
+						</div>
+						
+						<div class="col-lg-4">
+							<div class="form-group">
+								<label>Provincia*</label>
+									<select class="form-control" name="provincia" ng-model="provinciaSeleccionada" required>
+										{% for provincia in provincias %}
+										<option value="{{provincia.id}}">{{provincia.CodProvincia}} - {{provincia}}</option>
+										{% endfor %}
+								</select>
+							</div>
+						</div>
+														
+						<div class="col-lg-8">
+							<div class="form-group">
+								<label>Municipio*</label>
+								<select class="form-control" name="municipio" ng-model="municipioSeleccionado" required>
+									<option ng-repeat="municipio in municipios  | filter: {idProvincia: provinciaSeleccionada}" value="[[municipio.id]]">[[municipio.CodMunicipio]] - [[municipio.Municipio]]</option>
+								</select>
+							</div>
+						</div>
+														
+						<div class="col-lg-9">
+							<div class="form-group">
+								<label>Domicilio*</label>
+								<input class="form-control" type="text" name="Domicilio" ng-model="Domicilio">
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>CP*</label>
+								<input class="form-control" type="text" name="CP" ng-model="CP">
+							</div>
+						</div>
+						
+						<div class="col-lg-12">
+							<div class=" pull-right">
+								</br>
+							</div>
+						</div>
+						
+						<div class="col-lg-12">
+							<div class=" pull-right">
+								<button type="button"   ng-click="guardaExplotacion()" class="btn btn-primary">Guardar</button>
+							</div>
+						</div>
+		            </form>
+		        </div>
+		    </div>
+		</div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+

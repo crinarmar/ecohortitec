@@ -1,0 +1,157 @@
+{% load admin_static %}{% load firstof from future %}<!DOCTYPE html>
+
+
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<title>{% block title %}{% endblock %}</title>
+
+<link rel="stylesheet" href="{% static "css/bower_components/bootstrap/dist/css/bootstrap.min.css" %}">
+<link rel="stylesheet" href="{% static "css/aplicacion.css" %}">
+<link rel="stylesheet" href="{% static "css/bower_components/metisMenu/dist/metisMenu.min.css" %}">
+<link rel="stylesheet" href="{% static "css/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" %}">
+<link rel="stylesheet" href="{% static "css/css/sb-admin-2.css" %}">
+<link rel="stylesheet" href="{% static "css/bower_components/datatables-responsive/css/dataTables.responsive.css" %}">
+<link rel="stylesheet" href="{% static "css/bower_components/font-awesome/css/font-awesome.min.css" %}">
+<link rel="stylesheet" href="{% static "css/bower_components/morrisjs/morris.css" %}">
+
+
+{% block extrastyle %}{% endblock %}
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
+<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+<script type="text/javascript">window.__admin_utc_offset__ = "{% filter escapejs %}{% now "Z" %}{% endfilter %}";</script>
+<script src="{% static 'js/angular.min.js' %}"></script>
+<script src="{% static 'js/cookies.js' %}"></script>
+<script src="{% static 'js/app.js' %}"></script>
+<script src="{% static 'js/ui-bootstrap-tpls-0.6.0.js' %}"></script>
+<script src="{% static 'css/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'css/bower_components/angular/angular-route.js' %}"></script>
+<script src="{% static 'css/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'css/bower_components/morrisjs/morris.min.js' %}"></script>
+<script src="{% static 'css/bower_components/metisMenu/dist/metisMenu.min.js' %}"></script>
+<script src="{% static 'js/sb-admin-2.js' %}"></script>
+<script src="{% static 'css/bower_components/DataTables/media/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'css/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js' %}"></script>
+
+{% block extrascripts %}{% endblock %}
+
+
+{% block extrahead %}{% endblock %}
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+</head>
+{% load i18n %}
+
+<body ng-app="administrador">
+	<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="{% url 'citagro:index' %}"><strong>Cuaderno de campo BETA</strong></a>
+		</div>
+
+        <ul class="nav navbar-top-links navbar-right">
+            
+			<li class="dropdown">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-messages">
+					<li class="metadata"><strong>{% firstof user.get_full_name user.get_username %}</strong></li>
+					<li class="divider"></li>
+					<!--<li><a href="#"><i class="fa fa-user fa-fw"></i>Ver perfil</a></li>-->
+					<li><a href="{% url 'citagro:cambiarUsuario' %}"><i class="fa fa-gear fa-fw"></i>Cambiar usuario</a></li>
+					<li><a href="{% url 'citagro:password_change' %}"><i class="fa fa-gear fa-fw"></i>{% trans 'Change password' %}</a></li>
+                    <li class="divider"></li>
+					<li><a href="{% url 'citagro:logout' %}"><i class="fa fa-sign-out fa-fw"></i>{% trans 'Log out' %}</a></li>
+                    </li>
+                </ul>
+				
+            </li>
+           
+          </ul>
+      </div>
+	  
+    </nav>
+	
+	<div id="container">
+    <!-- Content -->
+    <div id="content" class="{% block coltype %}colM{% endblock %}">
+		
+        {% block pretitle %}{% endblock %}
+        {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+        
+			<div class="col-xs-12 col-sm-4">
+				</br>
+				<div class="list-group text-center">
+					  <a href="{% url 'citagro:administradores' %}" class="list-group-item active">
+						<h4 class="list-group-item-heading">Ver Administradores</h4>
+					  </a>
+					   <a href="{% url 'citagro:creaAdministrador' %}" class="list-group-item">
+						<h4 class="list-group-item-heading">Crear Nuevo Administrador</h4>
+					  </a>
+				</div>				
+			</div>
+			{% block content %}
+		
+			{% endblock %}
+        {% block sidebar %}{% endblock %}
+        <br class="clear" />
+    </div>
+    <!-- END Content -->
+
+    {% block footer %}<div id="footer"></div>{% endblock %}
+</div>
+	
+	
+	
+<!-- END Container -->
+
+<script>
+    $(document).ready(function() {
+        $('#dataTables-example').DataTable({
+                responsive: true
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#dataTables-example4').DataTable({
+                responsive: true
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#dataTables-example2').DataTable({
+                responsive: true,
+				 searching: false
+				
+        });
+    });
+</script>
+<script>
+$('.popover-markup > .trigger').popover({
+	
+    html : true,
+    title: function() {
+      return $(this).parent().find('.head').html();
+    },
+    content: function() {
+      return $(this).parent().find('.content').html();
+    },
+    container: 'body',
+    placement: 'left'
+});
+</script>
+
+
+
+</body>
+
+
+
+</html>

@@ -1,0 +1,51 @@
+{% extends "citagro/Administrador/Administrador.html" %}
+{% load i18n %}
+{% load admin_static %}
+
+
+{% block breadcrumbs %}
+						 
+	<div class="row">
+		<ul class="row breadcrumb">
+			<li><a href="{% url 'citagro:index' %}">Inicio</a></li>
+			<li class="active"><strong>Cambiar Contraseña</strong></li>
+		</ul>
+	</div>
+
+{% endblock %}
+
+
+
+{% block content %}<div id="content-main" ng-controller="UsuarioController">
+
+<div class="col-lg-4">
+<div class="panel panel-warning">
+  <div class="panel-heading text-center"><strong>Modifica Usuario</strong></div>
+  <div class="panel-body">
+    <form action="" method="post">{% csrf_token %}
+		<div>
+		
+		<fieldset class="module aligned wide">
+
+		<div class="col-lg-12">
+			<div class="form-group">
+				<label>Nuevo usuario:</label>
+				<input id="nuevoUsuario" class="form-control" value="{{user.username}}" required>
+				<strong><p class="text-danger" id="errorUsuario"></p></strong>
+			</div>
+		</div>
+
+		</fieldset>
+		</div>
+	</form>
+  </div>
+    <div class="modal-footer">
+		<button type="button" class="btn btn-warning" ng-click="guardaUsuario('{{user.id}}')">Cambiar Usuario</button>				
+	</div>
+  
+</div>
+</div>
+
+</div>
+
+{% endblock %}
